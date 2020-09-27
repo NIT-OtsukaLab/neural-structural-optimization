@@ -1,0 +1,2 @@
+自身のsetup.py installをpienvで実行するには  # https://www.codeflow.site/ja/article/pipenv-guide
+$ pipenv install -e .

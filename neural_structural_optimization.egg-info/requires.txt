@@ -1,0 +1,12 @@
+absl-py
+apache-beam
+autograd
+nlopt
+numpy
+matplotlib
+Pillow
+scipy
+scikit-image
+seaborn
+xarray
+dataclasses
