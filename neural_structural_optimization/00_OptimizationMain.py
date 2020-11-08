@@ -34,7 +34,8 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
 #"MBB beam with a larger grid"
 problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64_0.4']
 max_iterations = 100
-%time ds = train_all(problem, max_iterations)
+#%time
+ds = train_all(problem, max_iterations)
 
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
 plt.ylim(230, 330)
@@ -48,7 +49,7 @@ seaborn.despine()
 ds.design.ffill('step').sel(step=100).plot.imshow(
     col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
-plt.suptitle(problem.name, y=1.02);
+plt.suptitle(problem.name, y=1.02)
 
 """
 #"MBB Beam (Figure 2 from paper)"
