@@ -34,8 +34,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
 #"MBB beam with a larger grid"
 problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64_0.4']
 max_iterations = 100
-#%time
-ds = train_all(problem, max_iterations)
+%time ds = train_all(problem, max_iterations)
 
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
 plt.ylim(230, 330)

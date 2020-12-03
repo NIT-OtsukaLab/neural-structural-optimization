@@ -1,0 +1,31 @@
+Commands Memo
+
+[About github]
+#
+git add
+#
+git commit -m "コメント"
+#
+git push origin develop
+or
+git push -u origin develop
+
+[プログラム実行環境の準備と実行]
+#必要なモジュールのインストール
+pipenv install --skip-lock モジュール名
+#実行環境
+pipenv shell
+
+[About Jupyter Notebook] ( https://qiita.com/SUZUKI_Masaya/items/76b927b9812d77d33e57 )
+  起動
+	1. カレントディレクトリをプロジェクト用のディレクトリに移動します。
+	2. pipenv run jupyter notebook コマンドを実行します。
+	3. ブラウザ上でJupyter Notebookが開きます。
+
+  実行( https://qiita.com/kngsym2018/items/21b6efe4547a78661951 )
+	%matplotlib inline
+	%run -i 00_OptimizationMain.py
+	（%も記入が必要）
+
+  終了
+	Jupyter Notebookを起動しているターミナル上でCtrl+Cを押下します。
