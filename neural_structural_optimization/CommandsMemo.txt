@@ -2,7 +2,7 @@ Commands Memo
 
 [About github]
 #
-git a
+git add .
 #
 git commit -m "コメント"
 #

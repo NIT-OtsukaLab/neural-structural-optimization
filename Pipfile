@@ -4,10 +4,17 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pylint = "*"
 
 [packages]
 neural-structural-optimization = {editable = true, path = "."}
 scikit-sparse = "*"
+ipython = "*"
+pillow = "*"
+tensorflow = "*"
+bottleneck = "*"
+jupyter = "*"
+jupytext = "*"
 
 [requires]
 python_version = "3.6"

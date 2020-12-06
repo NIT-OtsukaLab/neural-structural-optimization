@@ -1,5 +1,8 @@
 README.md
+pyproject.toml
 setup.py
+neural_structural_optimization/00_OptimizationMain.py
+neural_structural_optimization/OptimizationMain_ForAnalysis.py
 neural_structural_optimization/__init__.py
 neural_structural_optimization/autograd_lib.py
 neural_structural_optimization/autograd_lib_test.py
