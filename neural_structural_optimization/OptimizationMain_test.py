@@ -32,7 +32,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     return xarray.concat([ds_cnn, ds_mma, ds_oc, ds_pix], dim=dims)
 
 #"MBB beam with a larger grid"
-problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64_0.4']
+problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64x1_0.4']
 max_iterations = 100
 %time ds = train_all(problem, max_iterations)
 

@@ -38,6 +38,7 @@ def specified_task(problem):
       # input parameters
       'nelx': problem.width,
       'nely': problem.height,
+      'nelz': problem.depth,
       'mask': problem.mask,
       'freedofs': freedofs,
       'fixdofs': fixdofs,
