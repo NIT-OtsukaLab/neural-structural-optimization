@@ -57,7 +57,7 @@ class Environment:
         self.args['young'], self.args['poisson'])
 
   def reshape(self, params):
-    return params.reshape(self.args['nely'], self.args['nelx'])
+    return params.reshape(self.args['nelz'], self.args['nely'], self.args['nelx'])
 
   def render(self, params, volume_contraint=True):
     return topo_physics.physical_density(

@@ -69,7 +69,7 @@ class PixelModel(Model):
 
   def __init__(self, seed=None, args=None):
     super().__init__(seed, args)
-    shape = (1, self.env.args['nely'], self.env.args['nelx'])
+    shape = (self.env.args['nelz'], self.env.args['nely'], self.env.args['nelx'])	#2020-12-12 K.Taniguchi
     z_init = np.broadcast_to(args['volfrac'] * args['mask'], shape)
     self.z = tf.Variable(z_init, trainable=True)
 
