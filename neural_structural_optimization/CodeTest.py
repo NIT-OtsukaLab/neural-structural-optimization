@@ -64,7 +64,7 @@ class Problem:
             raise ValueError(f'forces has wrong shape: {self.forces.shape}')
         if (isinstance(self.mask, np.ndarray) and self.mask.shape != (self.height, self.width, self.depth)):	#2020-12-07 K.Taniguchi
             raise ValueError(f'mask has wrong shape: {self.mask.shape}')
-    
+
 #2020-12-07 K.Taniguchi
         self.mirror_left = (
             self.normals[0, :, :, X].all() and not self.normals[0, :, :, Y].all() and not self.normals[0, :, :, Z].all()
@@ -72,7 +72,7 @@ class Problem:
         self.mirror_right = (
             self.normals[-1, :, :, X].all() and not self.normals[-1, :, :, Y].all() and not self.normals[-1, :, :, Y].all()
         )
-    
+
 def mbb_beam(width=60, height=20, depth=2, density=0.5):
     """Textbook beam example."""
     normals = np.zeros((width + 1, height + 1, depth + 1, 3))
@@ -80,12 +80,12 @@ def mbb_beam(width=60, height=20, depth=2, density=0.5):
     normals[-1, -1, :, Z] = 1
     normals[0, :, :, X] = 1
     normals[0, :, :, Z] = 1
-        
+
     forces = np.zeros((width + 1, height + 1, depth +1, 3))
     forces[0, 0, :, Y] = -1
     return Problem(normals, forces, density)
 
-def cantilever_beam_full(width=60, height=60, depth=1, density=0.5, force_position=0):
+def cantilever_beam_full(width=60, height=60, depth=2, density=0.5, force_position=0):
     """Cantilever supported everywhere on the left."""
     # https://link.springer.com/content/pdf/10.1007%2Fs00158-010-0557-z.pdf
     normals = np.zeros((width + 1, height + 1, depth +1, 3))
@@ -136,14 +136,14 @@ def specified_task(problem):
     fixdofs = np.flatnonzero(problem.normals.ravel())
     alldofs = np.arange(3 * (problem.width + 1) * (problem.height + 1) * (problem.depth + 1))
     freedofs = np.sort(list(set(alldofs) - set(fixdofs)))
-    
+
     #print(problem.normals)
     #print(problem.normals.ravel())
     #print("problem name is ", problem.name)
     print("alldofs = ", alldofs)
     print("fixdofs = ", fixdofs)
     print("freedofs = ", freedofs)
-    
+
     params = {
         # material properties
         'young': 1,
@@ -230,7 +230,7 @@ class PixelModel(Model):
     self.z = tf.Variable(z_init, trainable=True)
 
     print(z_init.size)
-    
+
   def call(self, inputs=None):
     return self.z
 
@@ -547,5 +547,3 @@ def train_lbfgs(
 ds_pix = train_lbfgs(model, max_iterations)
 print(ds_pix)
 # -
-
-

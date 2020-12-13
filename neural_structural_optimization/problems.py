@@ -29,10 +29,10 @@ class Problem:
   """Description of a topology optimization problem.
 
   Attributes:
-    normals: float64 array of shape (width+1, height+1, depth+1, 3) where a value of 1	#(width+1, height+1, 2)->(width+1, height+1, depth+1, 3)
+    normals: float64 array of shape (width+1, height+1, depth+1, 3) where a value of 1	#(width+1, height+1, 2)->(width+1, height+1, depth+1, 3)	2020-12-07 K.Taniguchi
       indicates a "fixed" coordinate, and 0 indicates no normal force.
-    forces: float64 array of shape (width+1, height+1, depth+1, 3) indicating external			#(width+1, height+1, 2)->(width+1, height+1, depth+1, 3)
-      applied forces in the x y and z directions.
+    forces: float64 array of shape (width+1, height+1, depth+1, 3) indicating external
+      applied forces in the x, y and z directions.		#(width+1, height+1, 2)->(width+1, height+1, depth+1, 3)	2020-12-07 K.Taniguchi
     density: fraction of the design region that should be non-zero.
     mask: scalar or float64 array of shape (height, width) that is multiplied by
       the design mask before and after applying the blurring filters. Values of
@@ -78,7 +78,7 @@ class Problem:
     )
 
 #2020-12-07 K.Taniguchi
-def mbb_beam(width=60, height=20, depth=1, density=0.5):
+def mbb_beam(width=60, height=20, depth=2, density=0.5):
   """Textbook beam example."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[-1, -1, :, Y] = 1
@@ -93,7 +93,7 @@ def mbb_beam(width=60, height=20, depth=1, density=0.5):
 
 #2020-12-07 K.Taniguchi
 def cantilever_beam_full(
-    width=60, height=60, depth=1, density=0.5, force_position=0):
+    width=60, height=60, depth=2, density=0.5, force_position=0):
   """Cantilever supported everywhere on the left."""
   # https://link.springer.com/content/pdf/10.1007%2Fs00158-010-0557-z.pdf
   normals = np.zeros((width + 1, height + 1, depth +1, 3))
@@ -106,7 +106,7 @@ def cantilever_beam_full(
 
 #2020-12-07 K.Taniguchi
 def cantilever_beam_two_point(
-    width=60, height=60, depth=1, density=0.5, support_position=0.25,
+    width=60, height=60, depth=2, density=0.5, support_position=0.25,
     force_position=0.5):
   """Cantilever supported by two points."""
   # https://link.springer.com/content/pdf/10.1007%2Fs00158-010-0557-z.pdf
@@ -121,7 +121,7 @@ def cantilever_beam_two_point(
 
 #2020-12-07 K.Taniguchi
 def pure_bending_moment(
-    width=60, height=60, depth=1, density=0.5, support_position=0.45):
+    width=60, height=60, depth=2, density=0.5, support_position=0.45):
   """Pure bending forces on a beam."""
   # Figure 28 from
   # http://naca.central.cranfield.ac.uk/reports/arc/rm/3303.pdf
@@ -140,7 +140,7 @@ def pure_bending_moment(
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def michell_centered_both(width=32, height=32, depth=1, density=0.5, position=0.05):
+def michell_centered_both(width=32, height=32, depth=2, density=0.5, position=0.05):
   """A single force down at the center, with support from the side."""
   # https://en.wikipedia.org/wiki/Michell_structures#Examples
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
@@ -154,7 +154,7 @@ def michell_centered_both(width=32, height=32, depth=1, density=0.5, position=0.
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def michell_centered_below(width=32, height=32, depth=1, density=0.5, position=0.25):
+def michell_centered_below(width=32, height=32, depth=2, density=0.5, position=0.25):
   """A single force down at the center, with support from the side below."""
   # https://en.wikipedia.org/wiki/Michell_structures#Examples
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
@@ -168,7 +168,7 @@ def michell_centered_below(width=32, height=32, depth=1, density=0.5, position=0
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def ground_structure(width=32, height=32, depth=1, density=0.5, force_position=0.5):
+def ground_structure(width=32, height=32, depth=2, density=0.5, force_position=0.5):
   """An overhanging bridge like structure holding up two weights."""
   # https://link.springer.com/content/pdf/10.1007%2Fs00158-010-0557-z.pdf
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
@@ -181,7 +181,7 @@ def ground_structure(width=32, height=32, depth=1, density=0.5, force_position=0
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def l_shape(width=32, height=32, depth=1, density=0.5, aspect=0.4, force_position=0.5):
+def l_shape(width=32, height=32, depth=2, density=0.5, aspect=0.4, force_position=0.5):
   """An L-shaped structure, with a limited design region."""
   # Topology Optimization Benchmarks in 2D
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
@@ -198,7 +198,7 @@ def l_shape(width=32, height=32, depth=1, density=0.5, aspect=0.4, force_positio
   return Problem(normals, forces, density, mask.T)
 
 #2020-12-07 K.Taniguchi
-def crane(width=32, height=32, depth=1, density=0.3, aspect=0.5, force_position=0.9):
+def crane(width=32, height=32, depth=2, density=0.3, aspect=0.5, force_position=0.9):
   """A crane supporting a downward force, anchored on the left."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[:, -1, :, :] = 1
@@ -216,7 +216,7 @@ def crane(width=32, height=32, depth=1, density=0.3, aspect=0.5, force_position=
   return Problem(normals, forces, density, mask.T)
 
 #2020-12-07 K.Taniguchi
-def tower(width=32, height=32, depth=1, density=0.5):
+def tower(width=32, height=32, depth=2, density=0.5):
   """A rather boring structure supporting a single point from the ground."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[:, -1, :, Y] = 1
@@ -228,7 +228,7 @@ def tower(width=32, height=32, depth=1, density=0.5):
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def center_support(width=32, height=32, depth=1, density=0.3):
+def center_support(width=32, height=32, depth=2, density=0.3):
   """Support downward forces from the top from the single point."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[-1, -1, :, Y] = 1
@@ -240,7 +240,7 @@ def center_support(width=32, height=32, depth=1, density=0.3):
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def column(width=32, height=32, depth=1, density=0.3):
+def column(width=32, height=32, depth=2, density=0.3):
   """Support downward forces from the top across a finite width."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[:, -1, :, Y] = 1
@@ -252,7 +252,7 @@ def column(width=32, height=32, depth=1, density=0.3):
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def roof(width=32, height=32, depth=1, density=0.5):
+def roof(width=32, height=32, depth=2, density=0.5):
   """Support downward forces from the top with a repeating structure."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[0, :, :, X] = 1
@@ -265,7 +265,7 @@ def roof(width=32, height=32, depth=1, density=0.5):
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def causeway_bridge(width=60, height=20, depth=1, density=0.3, deck_level=1):
+def causeway_bridge(width=60, height=20, depth=2, density=0.3, deck_level=1):
   """A bridge supported by columns at a regular interval."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[-1, -1, :, Y] = 1
@@ -278,7 +278,7 @@ def causeway_bridge(width=60, height=20, depth=1, density=0.3, deck_level=1):
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def two_level_bridge(width=32, height=32, depth=1, density=0.3, deck_height=0.2):
+def two_level_bridge(width=32, height=32, depth=2, density=0.3, deck_height=0.2):
   """A causeway bridge with two decks."""
   normals = np.zeros((width + 1, width + 1, depth + 1, 3))
   normals[0, -1, :, :] = 1
@@ -291,7 +291,7 @@ def two_level_bridge(width=32, height=32, depth=1, density=0.3, deck_height=0.2)
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def suspended_bridge(width=60, height=20, depth=1, density=0.3, span_position=0.2, anchored=False):
+def suspended_bridge(width=60, height=20, depth=2, density=0.3, span_position=0.2, anchored=False):
   """A bridge above the ground, with supports at lower corners."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[-1, :, :, X] = 1
@@ -305,7 +305,7 @@ def suspended_bridge(width=60, height=20, depth=1, density=0.3, span_position=0.
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def canyon_bridge(width=60, height=20, depth=1, density=0.3, deck_level=1):
+def canyon_bridge(width=60, height=20, depth=2, density=0.3, deck_level=1):
   """A bridge embedded in a canyon, without side supports."""
   deck_height = round(height * (1 - deck_level))
 
@@ -319,7 +319,7 @@ def canyon_bridge(width=60, height=20, depth=1, density=0.3, deck_level=1):
 
 #2020-12-07 K.Taniguchi
 def thin_support_bridge(
-    width=32, height=32, depth=1, density=0.25, design_width=0.25):
+    width=32, height=32, depth=2, density=0.25, design_width=0.25):
   """A bridge supported from below with fixed width supports."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[:, -1, :, Y] = 1
@@ -336,7 +336,7 @@ def thin_support_bridge(
   return Problem(normals, forces, density, mask)
 
 #2020-12-07 K.Taniguchi
-def drawbridge(width=32, height=32, depth=1, density=0.25):
+def drawbridge(width=32, height=32, depth=2, density=0.25):
   """A bridge supported from above on the left."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[0, :, :, :] = 1
@@ -347,7 +347,7 @@ def drawbridge(width=32, height=32, depth=1, density=0.25):
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def hoop(width=32, height=32, depth=1, density=0.25):
+def hoop(width=32, height=32, depth=2, density=0.25):
   """Downward forces in a circle, supported from the ground."""
   if 2 * width != height:
     raise ValueError('hoop must be circular')
@@ -368,7 +368,7 @@ def hoop(width=32, height=32, depth=1, density=0.25):
 
 """#2020-12-07 K.Taniguchi
 def multipoint_circle(
-    width=140, height=140, depth=1, density=0.333, radius=6/7,
+    width=140, height=140, depth=2, density=0.333, radius=6/7,
     weights=(1, 0, 0, 0, 0, 0, 0), num_points=12):
   ""Various load scenarios at regular points in a circle points.""
   # From: http://www2.mae.ufl.edu/mdo/Papers/5219.pdf
@@ -399,7 +399,7 @@ def multipoint_circle(
   return Problem(normals, forces, density)
 """
 #2020-12-07 K.Taniguchi
-def dam(width=32, height=32, depth=1, density=0.5):
+def dam(width=32, height=32, depth=2, density=0.5):
   """Support horizitonal forces, proportional to depth."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
 #  normals[:, -1, X] = 1
@@ -411,12 +411,12 @@ def dam(width=32, height=32, depth=1, density=0.5):
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def ramp(width=32, height=32, depth=1, density=0.25):
+def ramp(width=32, height=32, depth=2, density=0.25):
   """Support downward forces on a ramp."""
   return staircase(width, height, depth, density, num_stories=1)
 
 #2020-12-07 K.Taniguchi
-def staircase(width=32, height=32, depth=1, density=0.25, num_stories=2):
+def staircase(width=32, height=32, depth=2, density=0.25, num_stories=2):
   """A ramp that zig-zags upward, supported from the ground."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[:, -1, :, :] = 1
@@ -434,7 +434,7 @@ def staircase(width=32, height=32, depth=1, density=0.25, num_stories=2):
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def staggered_points(width=32, height=32, depth=1, density=0.3, interval=16, break_symmetry=False):
+def staggered_points(width=32, height=32, depth=2, density=0.3, interval=16, break_symmetry=False):
   """A staggered grid of points with downward forces, supported from below."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[:, -1, :, Y] = 1
@@ -450,7 +450,7 @@ def staggered_points(width=32, height=32, depth=1, density=0.3, interval=16, bre
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
-def multistory_building(width=32, height=32, depth=1, density=0.3, interval=16):
+def multistory_building(width=32, height=32, depth=2, density=0.3, interval=16):
   """A multi-story building, supported from the ground."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[:, -1, :, Y] = 1
@@ -466,180 +466,180 @@ def multistory_building(width=32, height=32, depth=1, density=0.3, interval=16):
 PROBLEMS_BY_CATEGORY = {
     # idealized beam and cantilevers
     'mbb_beam': [
-        mbb_beam(96, 32, 1, density=0.5),
-        mbb_beam(192, 64, 1, density=0.4),
-        mbb_beam(384, 128, 1, density=0.3),
-        mbb_beam(192, 32, 1, density=0.5),
-        mbb_beam(384, 64, 1, density=0.4),
+        mbb_beam(96, 32, 2, density=0.5),
+        mbb_beam(192, 64, 2, density=0.4),
+        mbb_beam(384, 128, 2, density=0.3),
+        mbb_beam(192, 32, 2, density=0.5),
+        mbb_beam(384, 64, 2, density=0.4),
     ],
     'cantilever_beam_full': [
-        cantilever_beam_full(96, 32, 1, density=0.4),
-        cantilever_beam_full(192, 64, 1, density=0.3),
-        cantilever_beam_full(384, 128, 1, density=0.2),
-        cantilever_beam_full(384, 128, 1, density=0.15),
+        cantilever_beam_full(96, 32, 2, density=0.4),
+        cantilever_beam_full(192, 64, 2, density=0.3),
+        cantilever_beam_full(384, 128, 2, density=0.2),
+        cantilever_beam_full(384, 128, 2, density=0.15),
     ],
     'cantilever_beam_two_point': [
-        cantilever_beam_two_point(64, 48, 1, density=0.4),
-        cantilever_beam_two_point(128, 96, 1, density=0.3),
-        cantilever_beam_two_point(256, 192, 1, density=0.2),
-        cantilever_beam_two_point(256, 192, 1, density=0.15),
+        cantilever_beam_two_point(64, 48, 2, density=0.4),
+        cantilever_beam_two_point(128, 96, 2, density=0.3),
+        cantilever_beam_two_point(256, 192, 2, density=0.2),
+        cantilever_beam_two_point(256, 192, 2, density=0.15),
     ],
     'pure_bending_moment': [
-        pure_bending_moment(32, 64, 1, density=0.15),
-        pure_bending_moment(64, 128, 1, density=0.125),
-        pure_bending_moment(128, 256, 1, density=0.1),
+        pure_bending_moment(32, 64, 2, density=0.15),
+        pure_bending_moment(64, 128, 2, density=0.125),
+        pure_bending_moment(128, 256, 2, density=0.1),
     ],
     'ground_structure': [
-        ground_structure(64, 64, 1, density=0.12),
-        ground_structure(128, 128, 1, density=0.1),
-        ground_structure(256, 256, 1, density=0.07),
-        ground_structure(256, 256, 1, density=0.05),
+        ground_structure(64, 64, 2, density=0.12),
+        ground_structure(128, 128, 2, density=0.1),
+        ground_structure(256, 256, 2, density=0.07),
+        ground_structure(256, 256, 2, density=0.05),
     ],
     'michell_centered_both': [
-        michell_centered_both(32, 64, 1, density=0.12),
-        michell_centered_both(64, 128, 1, density=0.12),
-        michell_centered_both(128, 256, 1, density=0.12),
-        michell_centered_both(128, 256, 1, density=0.06),
+        michell_centered_both(32, 64, 2, density=0.12),
+        michell_centered_both(64, 128, 2, density=0.12),
+        michell_centered_both(128, 256, 2, density=0.12),
+        michell_centered_both(128, 256, 2, density=0.06),
     ],
     'michell_centered_below': [
-        michell_centered_below(64, 64, 1, density=0.12),
-        michell_centered_below(128, 128, 1, density=0.12),
-        michell_centered_below(256, 256, 1, density=0.12),
-        michell_centered_below(256, 256, 1, density=0.06),
+        michell_centered_below(64, 64, 2, density=0.12),
+        michell_centered_below(128, 128, 2, density=0.12),
+        michell_centered_below(256, 256, 2, density=0.12),
+        michell_centered_below(256, 256, 2, density=0.06),
     ],
     # simple constrained designs
     'l_shape_0.2': [
-        l_shape(64, 64, 1, aspect=0.2, density=0.4),
-        l_shape(128, 128, 1, aspect=0.2, density=0.3),
-        l_shape(256, 256, 1, aspect=0.2, density=0.2),
+        l_shape(64, 64, 2, aspect=0.2, density=0.4),
+        l_shape(128, 128, 2, aspect=0.2, density=0.3),
+        l_shape(256, 256, 2, aspect=0.2, density=0.2),
     ],
     'l_shape_0.4': [
-        l_shape(64, 64, 1, aspect=0.4, density=0.4),
-        l_shape(128, 128, 1, aspect=0.4, density=0.3),
-        l_shape(256, 256, 1, aspect=0.4, density=0.2),
+        l_shape(64, 64, 2, aspect=0.4, density=0.4),
+        l_shape(128, 128, 2, aspect=0.4, density=0.3),
+        l_shape(256, 256, 2, aspect=0.4, density=0.2),
     ],
     'crane': [
-        crane(64, 64, 1, density=0.3),
-        crane(128, 128, 1, density=0.2),
-        crane(256, 256, 1, density=0.15),
-        crane(256, 256, 1, density=0.1),
+        crane(64, 64, 2, density=0.3),
+        crane(128, 128, 2, density=0.2),
+        crane(256, 256, 2, density=0.15),
+        crane(256, 256, 2, density=0.1),
     ],
     # vertical support structures
     'center_support': [
-        center_support(64, 64, 1, density=0.15),
-        center_support(128, 128, 1, density=0.1),
-        center_support(256, 256, 1, density=0.1),
-        center_support(256, 256, 1, density=0.05),
+        center_support(64, 64, 2, density=0.15),
+        center_support(128, 128, 2, density=0.1),
+        center_support(256, 256, 2, density=0.1),
+        center_support(256, 256, 2, density=0.05),
     ],
     'column': [
-        column(32, 128, 1, density=0.3),
-        column(64, 256, 1, density=0.3),
-        column(128, 512, 1, density=0.1),
-        column(128, 512, 1, density=0.3),
-        column(128, 512, 1, density=0.5),
+        column(32, 128, 2, density=0.3),
+        column(64, 256, 2, density=0.3),
+        column(128, 512, 2, density=0.1),
+        column(128, 512, 2, density=0.3),
+        column(128, 512, 2, density=0.5),
     ],
     'roof': [
-        roof(64, 64, 1, density=0.2),
-        roof(128, 128, 1, density=0.15),
-        roof(256, 256, 1, density=0.4),
-        roof(256, 256, 1, density=0.2),
-        roof(256, 256, 1, density=0.1),
+        roof(64, 64, 2, density=0.2),
+        roof(128, 128, 2, density=0.15),
+        roof(256, 256, 2, density=0.4),
+        roof(256, 256, 2, density=0.2),
+        roof(256, 256, 2, density=0.1),
     ],
     # bridges
     'causeway_bridge_top': [
-        causeway_bridge(64, 64, 1, density=0.3),
-        causeway_bridge(128, 128, 1, density=0.2),
-        causeway_bridge(256, 256, 1, density=0.1),
-        causeway_bridge(128, 64, 1, density=0.3),
-        causeway_bridge(256, 128, 1, density=0.2),
+        causeway_bridge(64, 64, 2, density=0.3),
+        causeway_bridge(128, 128, 2, density=0.2),
+        causeway_bridge(256, 256, 2, density=0.1),
+        causeway_bridge(128, 64, 2, density=0.3),
+        causeway_bridge(256, 128, 2, density=0.2),
     ],
     'causeway_bridge_middle': [
-        causeway_bridge(64, 64, 1, density=0.12, deck_level=0.5),
-        causeway_bridge(128, 128, 1, density=0.1, deck_level=0.5),
-        causeway_bridge(256, 256, 1, density=0.08, deck_level=0.5),
+        causeway_bridge(64, 64, 2, density=0.12, deck_level=0.5),
+        causeway_bridge(128, 128, 2, density=0.1, deck_level=0.5),
+        causeway_bridge(256, 256, 2, density=0.08, deck_level=0.5),
     ],
     'causeway_bridge_low': [
-        causeway_bridge(64, 64, 1, density=0.12, deck_level=0.3),
-        causeway_bridge(128, 128, 1, density=0.1, deck_level=0.3),
-        causeway_bridge(256, 256, 1, density=0.08, deck_level=0.3),
+        causeway_bridge(64, 64, 2, density=0.12, deck_level=0.3),
+        causeway_bridge(128, 128, 2, density=0.1, deck_level=0.3),
+        causeway_bridge(256, 256, 2, density=0.08, deck_level=0.3),
     ],
     'two_level_bridge': [
-        two_level_bridge(64, 64, 1, density=0.2),
-        two_level_bridge(128, 128, 1, density=0.16),
-        two_level_bridge(256, 256, 1, density=0.12),
+        two_level_bridge(64, 64, 2, density=0.2),
+        two_level_bridge(128, 128, 2, density=0.16),
+        two_level_bridge(256, 256, 2, density=0.12),
     ],
     'free_suspended_bridge': [
-        suspended_bridge(64, 64, 1, density=0.15, anchored=False),
-        suspended_bridge(128, 128, 1, density=0.1, anchored=False),
-        suspended_bridge(256, 256, 1, density=0.075, anchored=False),
-        suspended_bridge(256, 256, 1, density=0.05, anchored=False),
+        suspended_bridge(64, 64, 2, density=0.15, anchored=False),
+        suspended_bridge(128, 128, 2, density=0.1, anchored=False),
+        suspended_bridge(256, 256, 2, density=0.075, anchored=False),
+        suspended_bridge(256, 256, 2, density=0.05, anchored=False),
     ],
     'anchored_suspended_bridge': [
-        suspended_bridge(64, 64, 1, density=0.15, span_position=0.1, anchored=True),
-        suspended_bridge(128, 128, 1, density=0.1, span_position=0.1, anchored=True),
-        suspended_bridge(256, 256, 1, density=0.075, span_position=0.1, anchored=True),
-        suspended_bridge(256, 256, 1, density=0.05, span_position=0.1, anchored=True),
+        suspended_bridge(64, 64, 2, density=0.15, span_position=0.1, anchored=True),
+        suspended_bridge(128, 128, 2, density=0.1, span_position=0.1, anchored=True),
+        suspended_bridge(256, 256, 2, density=0.075, span_position=0.1, anchored=True),
+        suspended_bridge(256, 256, 2, density=0.05, span_position=0.1, anchored=True),
     ],
     'canyon_bridge': [
-        canyon_bridge(64, 64, 1, density=0.16),
-        canyon_bridge(128, 128, 1, density=0.12),
-        canyon_bridge(256, 256, 1, density=0.1),
-        canyon_bridge(256, 256, 1, density=0.05),
+        canyon_bridge(64, 64, 2, density=0.16),
+        canyon_bridge(128, 128, 2, density=0.12),
+        canyon_bridge(256, 256, 2, density=0.1),
+        canyon_bridge(256, 256, 2, density=0.05),
     ],
     'thin_support_bridge': [
-        thin_support_bridge(64, 64, 1, density=0.3),
-        thin_support_bridge(128, 128, 1, density=0.2),
-        thin_support_bridge(256, 256, 1, density=0.15),
-        thin_support_bridge(256, 256, 1, density=0.1),
+        thin_support_bridge(64, 64, 2, density=0.3),
+        thin_support_bridge(128, 128, 2, density=0.2),
+        thin_support_bridge(256, 256, 2, density=0.15),
+        thin_support_bridge(256, 256, 2, density=0.1),
     ],
     'drawbridge': [
-        drawbridge(64, 64, 1, density=0.2),
-        drawbridge(128, 128, 1, density=0.15),
-        drawbridge(256, 256, 1, density=0.1),
+        drawbridge(64, 64, 2, density=0.2),
+        drawbridge(128, 128, 2, density=0.15),
+        drawbridge(256, 256, 2, density=0.1),
     ],
     # more complex design problems
     'hoop': [
-        hoop(32, 64, 1, density=0.25),
-        hoop(64, 128, 1, density=0.2),
-        hoop(128, 256, 1, density=0.15),
+        hoop(32, 64, 2, density=0.25),
+        hoop(64, 128, 2, density=0.2),
+        hoop(128, 256, 2, density=0.15),
     ],
     'dam': [
-        dam(64, 64, 1, density=0.2),
-        dam(128, 128, 1, density=0.15),
-        dam(256, 256, 1, density=0.05),
-        dam(256, 256, 1, density=0.1),
-        dam(256, 256, 1, density=0.2),
+        dam(64, 64, 2, density=0.2),
+        dam(128, 128, 2, density=0.15),
+        dam(256, 256, 2, density=0.05),
+        dam(256, 256, 2, density=0.1),
+        dam(256, 256, 2, density=0.2),
     ],
     'ramp': [
-        ramp(64, 64, 1, density=0.3),
-        ramp(128, 128, 1, density=0.2),
-        ramp(256, 256, 1, density=0.2),
-        ramp(256, 256, 1, density=0.1),
+        ramp(64, 64, 2, density=0.3),
+        ramp(128, 128, 2, density=0.2),
+        ramp(256, 256, 2, density=0.2),
+        ramp(256, 256, 2, density=0.1),
     ],
     'staircase': [
-        staircase(64, 64, 1, density=0.3, num_stories=3),
-        staircase(128, 128, 1, density=0.2, num_stories=3),
-        staircase(256, 256, 1, density=0.15, num_stories=3),
-        staircase(128, 512, 1, density=0.15, num_stories=6),
+        staircase(64, 64, 2, density=0.3, num_stories=3),
+        staircase(128, 128, 2, density=0.2, num_stories=3),
+        staircase(256, 256, 2, density=0.15, num_stories=3),
+        staircase(128, 512, 2, density=0.15, num_stories=6),
     ],
     'staggered_points': [
-        staggered_points(64, 64, 1, density=0.3),
-        staggered_points(128, 128, 1, density=0.3),
-        staggered_points(256, 256, 1, density=0.3),
-        staggered_points(256, 256, 1, density=0.5),
-        staggered_points(64, 128, 1, density=0.3),
-        staggered_points(128, 256, 1, density=0.3),
-        staggered_points(32, 128, 1, density=0.3),
-        staggered_points(64, 256, 1, density=0.3),
-        staggered_points(128, 512, 1, density=0.3),
-        staggered_points(128, 512, 1, interval=32, density=0.15),
+        staggered_points(64, 64, 2, density=0.3),
+        staggered_points(128, 128, 2, density=0.3),
+        staggered_points(256, 256, 2, density=0.3),
+        staggered_points(256, 256, 2, density=0.5),
+        staggered_points(64, 128, 2, density=0.3),
+        staggered_points(128, 256, 2, density=0.3),
+        staggered_points(32, 128, 2, density=0.3),
+        staggered_points(64, 256, 2, density=0.3),
+        staggered_points(128, 512, 2, density=0.3),
+        staggered_points(128, 512, 2, interval=32, density=0.15),
     ],
     'multistory_building': [
-        multistory_building(32, 64, 1, density=0.5),
-        multistory_building(64, 128, 1, interval=32, density=0.4),
-        multistory_building(128, 256, 1, interval=64, density=0.3),
-        multistory_building(128, 512, 1, interval=64, density=0.25),
-        multistory_building(128, 512, 1, interval=128, density=0.2),
+        multistory_building(32, 64, 2, density=0.5),
+        multistory_building(64, 128, 2, interval=32, density=0.4),
+        multistory_building(128, 256, 2, interval=64, density=0.3),
+        multistory_building(128, 512, 2, interval=64, density=0.25),
+        multistory_building(128, 512, 2, interval=128, density=0.2),
     ],
 }
 
