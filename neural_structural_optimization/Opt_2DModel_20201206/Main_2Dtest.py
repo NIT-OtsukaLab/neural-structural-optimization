@@ -1,3 +1,18 @@
+# ---
+# jupyter:
+#   jupytext:
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.7.1
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
+
+# +
 from IPython import display
 from PIL import Image
 import seaborn
@@ -5,11 +20,12 @@ import matplotlib.pyplot as plt
 import xarray
 import pandas as pd
 
-from neural_structural_optimization import pipeline_utils
-from neural_structural_optimization import problems
-from neural_structural_optimization import models
-from neural_structural_optimization import topo_api
-from neural_structural_optimization import train
+from neural_structural_optimization_20201206 import pipeline_utils
+from neural_structural_optimization_20201206 import problems
+from neural_structural_optimization_20201206 import models
+from neural_structural_optimization_20201206 import topo_api
+from neural_structural_optimization_20201206 import train
+
 
 def train_all(problem, max_iterations, cnn_kwargs=None):
     args = topo_api.specified_task(problem)
@@ -34,8 +50,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
 #"MBB beam with a larger grid"
 problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64_0.4']
 max_iterations = 100
-#%time
-ds = train_all(problem, max_iterations)
+# # %time ds = train_all(problem, max_iterations)
 
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
 plt.ylim(230, 330)
@@ -51,14 +66,15 @@ ds.design.ffill('step').sel(step=100).plot.imshow(
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
-"""
-#"MBB Beam (Figure 2 from paper)"
+
+# "MBB Beam (Figure 2 from paper)"
+
 problem = problems.mbb_beam(height=20, width=60)
 max_iterations = 200
 
 # can't upscale by exactly 8x for a 60x20 design region, so upscale by
 # only 4x instead
-%time ds = train_all(problem, max_iterations, cnn_kwargs=dict(resizes=(1, 1, 2, 2, 1)))
+# # %time ds = train_all(problem, max_iterations, cnn_kwargs=dict(resizes=(1, 1, 2, 2, 1)))
 
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
 plt.ylim(215, 260)
@@ -85,39 +101,42 @@ save_gif_movie([im.resize((5*120, 5*20)) for im in images], 'movie.gif')
 #"Multistory building"
 problem = problems.PROBLEMS_BY_NAME['multistory_building_64x128_0.4']
 max_iterations = 100  # keep things fast
-%time ds = train_all(problem, max_iterations)
+# # %time ds = train_all(problem, max_iterations)
 
 ds.loss.transpose().to_pandas().cummin().loc[:100].plot(linewidth=2)
 plt.ylim(40, 100)
 plt.ylabel('Compliance (loss)')
 plt.xlabel('Optimization step')
 seaborn.despine()
-plt.suptitle(problem.name);
+plt.suptitle(problem.name)
 
 ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
     row='model', col='step', x='x', y='y', size=2, aspect=0.5,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.subplots_adjust(wspace=0.1, hspace=0.05)
-plt.suptitle(problem.name, y=1.02);
+plt.suptitle(problem.name, y=1.02)
 
 
 #"Thin support bridge"
 # we really need more iterations to see the CNN-LBFGS method dominate
 problem = problems.PROBLEMS_BY_NAME['thin_support_bridge_128x128_0.2']
 max_iterations = 200
-%time ds = train_all(problem, max_iterations)
+# # %time ds = train_all(problem, max_iterations)
 
 ds.loss.transpose().to_pandas().cummin().plot(linewidth=2)
 plt.ylim(70, 120)
 plt.ylabel('Compliance (loss)')
 plt.xlabel('Optimization step')
 seaborn.despine()
-plt.suptitle(problem.name);
+plt.suptitle(problem.name)
 
 (xarray.concat([ds.design, ds.design.sel(x=slice(None, None, -1))] * 2, dim='x')
  .sel(step=200)
  .plot.imshow(
     col='model', x='x', y='y', size=2.5, aspect=2, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys'))
-plt.suptitle(problem.name, y=1.02);
-"""
+plt.suptitle(problem.name, y=1.02)
+
+# -
+
+

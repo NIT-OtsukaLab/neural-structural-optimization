@@ -56,6 +56,7 @@ def default_args():
           'volfrac': 0.4,  # constraints
           'nelx': nelx,     # input parameters
           'nely': nely,
+		  'nelz': nelz,
           'freedofs': freedofs,
           'fixdofs': fixdofs,
           'forces': forces,
@@ -69,7 +70,7 @@ def default_args():
 
 
 def physical_density(x, args, volume_contraint=False, cone_filter=True):
-  shape = (args['nely'], args['nelx'])
+  shape = (args['nelz'], args['nely'], args['nelx'])
   assert x.shape == shape or x.ndim == 1
   x = x.reshape(shape)
   if volume_contraint:

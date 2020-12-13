@@ -342,6 +342,109 @@ import tensorflow as tf
 import xarray
 import numpy
 
+#print('args =', args)
+model = PixelModel(args=args)
+max_iterations = 100
+init_model = None
+
+print('model :', model.trainable_variables)
+
+def method_of_moving_asymptotes(
+    model, max_iterations, save_intermediate_designs=True, init_model=None,
+):
+  import nlopt  # pylint: disable=g-import-not-at-top
+
+  if not isinstance(model, models.PixelModel):
+    raise ValueError('MMA only defined for pixel models')
+
+  env = model.env
+  if init_model is None:
+    x0 = _get_variables(model.trainable_variables).astype(np.float64)
+  else:
+    x0 = constrained_logits(init_model).ravel()
+
+  def objective(x):
+    return env.objective(x, volume_contraint=False)
+
+  def constraint(x):
+    return env.constraint(x)
+
+  def wrap_autograd_func(func, losses=None, frames=None):
+    def wrapper(x, grad):
+      if grad.size > 0:
+        value, grad[:] = autograd.value_and_grad(func)(x)
+      else:
+        value = func(x)
+      if losses is not None:
+        losses.append(value)
+      if frames is not None:
+        frames.append(env.reshape(x).copy())
+      return value
+    return wrapper
+
+  losses = []
+  frames = []
+
+  opt = nlopt.opt(nlopt.LD_MMA, x0.size)
+  opt.set_lower_bounds(0.0)
+  opt.set_upper_bounds(1.0)
+  opt.set_min_objective(wrap_autograd_func(objective, losses, frames))
+  opt.add_inequality_constraint(wrap_autograd_func(constraint), 1e-8)
+  opt.set_maxeval(max_iterations + 1)
+  opt.optimize(x0)
+
+  designs = [env.render(x, volume_contraint=False) for x in frames]
+  return optimizer_result_dataset(np.array(losses), np.array(designs), save_intermediate_designs)
+
+#print('x0 =', x0)
+ds_mma = method_of_moving_asymptotes(model, max_iterations)
+print(ds_mma)
+# -
+
+print(x0)
+print(x0.size)
+print(x0.shape)
+print('reshape:\n', x0.reshape(args['nelz'], args['nely'], args['nelx']))
+print('size aft reshape:', x0.reshape(args['nelz'], args['nely'], args['nelx']).size)
+print('shape aft reshape:', x0.reshape(args['nelz'], args['nely'], args['nelx']).shape)
+
+# +
+"""train.py def method_of_asymptotes(CONT'D)"""
+
+max_iterations = 100
+
+losses = []
+frames = []
+
+opt = nlopt.opt(nlopt.LD_MMA, x0.size)
+opt.set_lower_bounds(0.0)
+opt.set_upper_bounds(1.0)
+opt.set_min_objective(wrap_autograd_func(objective, losses, frames))
+opt.add_inequality_constraint(wrap_autograd_func(constraint), 1e-8)
+opt.set_maxeval(max_iterations + 1)
+opt.optimize(x0)
+
+designs = [env.render(x, volume_contraint=False) for x in frames]
+optimizer_result_dataset(np.array(losses), np.array(designs), save_intermediate_designs)
+
+print(designs)
+print(optimizer_result_dataset)
+
+
+# +
+"""train.py optimality_criteria"""
+import functools
+
+from absl import logging
+import autograd
+import autograd.numpy as np
+from neural_structural_optimization import models
+from neural_structural_optimization import topo_physics
+import scipy.optimize
+import tensorflow as tf
+import xarray
+import numpy
+
 model = PixelModel(args=args)
 max_iterations = 100
 init_model = None
@@ -351,62 +454,98 @@ def _get_variables(variables):
         v.numpy().ravel() if not isinstance(v, np.ndarray) else v.ravel()
         for v in variables])
 
-import nlopt  # pylint: disable=g-import-not-at-top
+def optimality_criteria(
+    model, max_iterations, save_intermediate_designs=True, init_model=None,
+):
+#  if not isinstance(model, models.PixelModel):
+#    raise ValueError('optimality criteria only defined for pixel models')
 
-"""if not isinstance(model, models.PixelModel):"""
-if not isinstance(model, PixelModel):
-    raise ValueError('MMA only defined for pixel models')
+  env = model.env
+  if init_model is None:
+    x = _get_variables(model.trainable_variables).astype(np.float64)
+  else:
+    x = constrained_logits(init_model).ravel()
 
-env = model.env
+  # start with the first frame but not its loss, since optimality_criteria_step
+  # returns the current loss and the *next* design.
+  losses = []
+  frames = [x]
+  for _ in range(max_iterations):
+    c, x = topo_physics.optimality_criteria_step(x, env.ke, env.args)
+    losses.append(c)
+    if np.isnan(c):
+      # no point in continuing to optimize
+      break
+    frames.append(x)
+  losses.append(env.objective(x, volume_contraint=False))
 
-if init_model is None:
-    x0 = _get_variables(model.trainable_variables).astype(np.float64)
-else:
-    x0 = constrained_logits(init_model).ravel()
-
-def objective(x):
-    return env.objective(x, volume_contraint=False)
-
-def constraint(x):
-    return env.constraint(x)
-
-def wrap_autograd_func(func, losses=None, frames=None):
-    def wrapper(x, grad):
-        if grad.size > 0:
-            value, grad[:] = autograd.value_and_grad(func)(x)
-        else:
-            value = func(x)
-        if losses is not None:
-            losses.append(value)
-        if frames is not None:
-            frames.append(env.reshape(x).copy())
-        return value
-    return wrapper
+  designs = [env.render(x, volume_contraint=False) for x in frames]
+  return optimizer_result_dataset(np.array(losses), np.array(designs),
+                                  save_intermediate_designs)
 
 print(model)
-print(model.env)
-print(_get_variables(model.trainable_variables))
-print(_get_variables(model.trainable_variables).astype(np.float64))
-print(x0)
-print(x0.size)
-print(x0.reshape(args['nelz'], args['nely'], args['nelx']))
-print(x0.reshape(args['nelz'], args['nely'], args['nelx']).shape)
+ds_oc = optimality_criteria(PixelModel(args=args), max_iterations)
+print(ds_oc)
+# -
 
-losses = []
-frames = []
+print('z=', model.z)
+print('z_dtype=', model.z.dtype)
+print('assign=', model.z.assign)
 
-opt = nlopt.opt(nlopt.LD_MMA, x0.size)  #コンストラクタ
-opt.set_lower_bounds(0.0)  #下限制約
-opt.set_upper_bounds(1.0)  #上限制約
-opt.set_min_objective(wrap_autograd_func(objective, losses, frames))  #目的関数
-opt.add_inequality_constraint(wrap_autograd_func(constraint), 1e-8)  #非線形制約
-opt.set_maxeval(max_iterations + 1)  #停止基準（関数評価の基準が設定数を超えたら停止）
-opt.optimize(x0)  #最適化実行
+# +
+"""train.py train_lbfgs"""
 
-designs = [env.render(x, volume_contraint=False) for x in frames]
-optimizer_result_dataset(np.array(losses), np.array(designs), save_intermediate_designs)
+print('x =', x)
+print('x0 =', x0)
+print('shape of x:', x.shape)
+print(model)
 
+def _set_variables(variables, x):
+  shapes = [v.shape.as_list() for v in variables]
+  values = tf.split(x, [np.prod(s) for s in shapes])
+  for var, value in zip(variables, values):
+    var.assign(tf.reshape(tf.cast(value, var.dtype), var.shape))
 
+def train_lbfgs(
+    model, max_iterations, save_intermediate_designs=True, init_model=None,
+    **kwargs
+):
+  model(None)  # build model, if not built
+
+  losses = []
+  frames = []
+
+  if init_model is not None:
+    if not isinstance(model, models.PixelModel):
+      raise TypeError('can only use init_model for initializing a PixelModel')
+    model.z.assign(tf.cast(init_model(None), model.z.dtype))
+
+  tvars = model.trainable_variables
+
+  def value_and_grad(x):
+    _set_variables(tvars, x)
+    with tf.GradientTape() as t:
+      t.watch(tvars)
+      logits = model(None)
+      loss = model.loss(logits)
+    grads = t.gradient(loss, tvars)
+    frames.append(logits.numpy().copy())
+    losses.append(loss.numpy().copy())
+    return float(loss.numpy()), _get_variables(grads).astype(np.float64)
+
+  x0 = _get_variables(tvars).astype(np.float64)
+  # rely upon the step limit instead of error tolerance for finishing.
+  _, _, info = scipy.optimize.fmin_l_bfgs_b(
+      value_and_grad, x0, maxfun=max_iterations, factr=1, pgtol=1e-14, **kwargs
+  )
+  logging.info(info)
+
+  designs = [model.env.render(x, volume_contraint=True) for x in frames]
+  return optimizer_result_dataset(
+      np.array(losses), np.array(designs), save_intermediate_designs)
+
+ds_pix = train_lbfgs(model, max_iterations)
+print(ds_pix)
 # -
 
 
