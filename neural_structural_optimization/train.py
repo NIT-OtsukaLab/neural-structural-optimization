@@ -34,12 +34,12 @@ def optimizer_result_dataset(losses, frames, save_intermediate_designs=False):
   if save_intermediate_designs:
     ds = xarray.Dataset({
         'loss': (('step',), losses),
-        'design': (('step', 'y', 'x'), frames),
+        'design': (('step', 'z', 'y', 'x'), frames),
     }, coords={'step': np.arange(len(losses))})
   else:
     ds = xarray.Dataset({
         'loss': (('step',), losses),
-        'design': (('y', 'x'), frames[best_design]),
+        'design': (('z', 'y', 'x'), frames[best_design]),
     }, coords={'step': np.arange(len(losses))})
   return ds
 
@@ -133,13 +133,10 @@ def train_lbfgs(
 def constrained_logits(init_model):
   """Produce matching initial conditions with volume constraints applied."""
   logits = init_model(None).numpy().astype(np.float64).squeeze(axis=0)
-  return topo_physics.physical_density(
-      logits, init_model.env.args, volume_contraint=True, cone_filter=False)
+  return topo_physics.physical_density(logits, init_model.env.args, volume_contraint=True, cone_filter=False)
 
 
-def method_of_moving_asymptotes(
-    model, max_iterations, save_intermediate_designs=True, init_model=None,
-):
+def method_of_moving_asymptotes(model, max_iterations, save_intermediate_designs=True, init_model=None,):
   import nlopt  # pylint: disable=g-import-not-at-top
 
   if not isinstance(model, models.PixelModel):
@@ -182,13 +179,10 @@ def method_of_moving_asymptotes(
   opt.optimize(x0)
 
   designs = [env.render(x, volume_contraint=False) for x in frames]
-  return optimizer_result_dataset(np.array(losses), np.array(designs),
-                                  save_intermediate_designs)
+  return optimizer_result_dataset(np.array(losses), np.array(designs), save_intermediate_designs)
 
 
-def optimality_criteria(
-    model, max_iterations, save_intermediate_designs=True, init_model=None,
-):
+def optimality_criteria(model, max_iterations, save_intermediate_designs=True, init_model=None,):
   if not isinstance(model, models.PixelModel):
     raise ValueError('optimality criteria only defined for pixel models')
 

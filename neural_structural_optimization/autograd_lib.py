@@ -63,8 +63,8 @@ autograd.extend.defvjp(gaussian_filter, _gaussian_filter_vjp)
 
 
 # Cone filter
-def _cone_filter_matrix(nelx, nely, radius, mask):
-  x, y = np.meshgrid(np.arange(nelx), np.arange(nely), indexing='ij')
+def _cone_filter_matrix(nelx, nely, nelz, radius, mask):
+  x, y, z = np.meshgrid(np.arange(nelx), np.arange(nely), np.arange(nelz), indexing='ijk')
 
   rows = []
   cols = []
@@ -83,7 +83,9 @@ def _cone_filter_matrix(nelx, nely, radius, mask):
           ((x+dx) >= 0) &
           ((x+dx) < nelx) &
           ((y+dy) >= 0) &
-          ((y+dy) < nely)
+          ((y+dy) < nely) &
+          ((z+dz) >= 0) &
+          ((z+dz) < nelz)
       )
       rows.append(row[valid])
       cols.append(column[valid])
@@ -96,9 +98,9 @@ def _cone_filter_matrix(nelx, nely, radius, mask):
 
 
 @caching.ndarray_safe_lru_cache()
-def normalized_cone_filter_matrix(nx, ny, radius, mask):
+def normalized_cone_filter_matrix(nx, ny, nz, radius, mask):
   """Calculate a sparse matrix appropriate for applying a cone filter."""
-  raw_filters = _cone_filter_matrix(nx, ny, radius, mask).tocsr()
+  raw_filters = _cone_filter_matrix(nx, ny, nz, radius, mask).tocsr()
   weights = 1 / raw_filters.sum(axis=0).squeeze()
   diag_weights = scipy.sparse.spdiags(weights, 0, nx*ny, nx*ny)
   return (diag_weights @ raw_filters).tocsr()
@@ -108,8 +110,7 @@ def normalized_cone_filter_matrix(nx, ny, radius, mask):
 def cone_filter(inputs, radius, mask=1, transpose=False):
   """Apply a cone filter of the given radius."""
   inputs = np.asarray(inputs)
-  filters = normalized_cone_filter_matrix(
-      *inputs.shape, radius=radius, mask=mask)
+  filters = normalized_cone_filter_matrix(*inputs.shape, radius=radius, mask=mask)
   if transpose:
     filters = filters.T
   outputs = filters @ inputs.ravel(order='F')

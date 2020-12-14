@@ -84,13 +84,13 @@ def global_normalization(inputs, epsilon=1e-6):
   net *= tf.math.rsqrt(variance + epsilon)
   return net
 
+#UpSampling2D→UpSampling3D	20201214 K.Taniguchi
+def UpSampling3D(factor):
+  return layers.UpSampling3D((factor, factor, facor), interpolation='bilinear')
 
-def UpSampling2D(factor):
-  return layers.UpSampling2D((factor, factor), interpolation='bilinear')
-
-
-def Conv2D(filters, kernel_size, **kwargs):
-  return layers.Conv2D(filters, kernel_size, padding='same', **kwargs)
+#Conv2D→Conv3D	20201214 K.Taniguchi
+def Conv3D(filters, kernel_size, **kwargs):
+  return layers.Conv3D(filters, kernel_size, padding='same', **kwargs)
 
 
 class AddOffset(layers.Layer):
@@ -135,19 +135,20 @@ class CNNModel(Model):
     total_resize = int(np.prod(resizes))
     h = self.env.args['nely'] // total_resize
     w = self.env.args['nelx'] // total_resize
+    d = self.env.args['nelz'] // total_resize
 
     net = inputs = layers.Input((latent_size,), batch_size=1)
-    filters = h * w * dense_channels
+    filters = h * w * d * dense_channels
     dense_initializer = tf.initializers.orthogonal(
         dense_init_scale * np.sqrt(max(filters / latent_size, 1)))
     net = layers.Dense(filters, kernel_initializer=dense_initializer)(net)
-    net = layers.Reshape([h, w, dense_channels])(net)
+    net = layers.Reshape([h, w, d, dense_channels])(net)
 
     for resize, filters in zip(resizes, conv_filters):
       net = activation(net)
-      net = UpSampling2D(resize)(net)
+      net = UpSampling3D(resize)(net)
       net = normalization(net)
-      net = Conv2D(
+      net = Conv3D(
           filters, kernel_size, kernel_initializer=conv_initializer)(net)
       if offset_scale != 0:
         net = AddOffset(offset_scale)(net)

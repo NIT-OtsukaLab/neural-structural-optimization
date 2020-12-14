@@ -22,7 +22,7 @@ from neural_structural_optimization import topo_physics
 def specified_task(problem):
   """Given a problem, return parameters for running a topology optimization."""
   fixdofs = np.flatnonzero(problem.normals.ravel())
-  alldofs = np.arange(2 * (problem.width + 1) * (problem.height + 1))
+  alldofs = np.arange(3 * (problem.width + 1) * (problem.height + 1) * (problem.depth + 1))
   freedofs = np.sort(list(set(alldofs) - set(fixdofs)))
 
   params = {

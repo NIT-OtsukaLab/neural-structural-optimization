@@ -181,8 +181,9 @@ def ground_structure(width=32, height=32, depth=2, density=0.5, force_position=0
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
+"""
 def l_shape(width=32, height=32, depth=2, density=0.5, aspect=0.4, force_position=0.5):
-  """An L-shaped structure, with a limited design region."""
+  ""An L-shaped structure, with a limited design region.""
   # Topology Optimization Benchmarks in 2D
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[:round(aspect*width), 0, :, :] = 1
@@ -196,10 +197,12 @@ def l_shape(width=32, height=32, depth=2, density=0.5, aspect=0.4, force_positio
 # mask[round(height*aspect):, :round(width*(1-aspect))] = 0
 
   return Problem(normals, forces, density, mask.T)
+"""
 
 #2020-12-07 K.Taniguchi
+"""
 def crane(width=32, height=32, depth=2, density=0.3, aspect=0.5, force_position=0.9):
-  """A crane supporting a downward force, anchored on the left."""
+  "A crane supporting a downward force, anchored on the left.""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
   normals[:, -1, :, :] = 1
 
@@ -214,6 +217,7 @@ def crane(width=32, height=32, depth=2, density=0.3, aspect=0.5, force_position=
   mask[round(aspect*width):, round(height*aspect)+2:, :] = 0
 
   return Problem(normals, forces, density, mask.T)
+"""
 
 #2020-12-07 K.Taniguchi
 def tower(width=32, height=32, depth=2, density=0.5):
@@ -508,6 +512,7 @@ PROBLEMS_BY_CATEGORY = {
         michell_centered_below(256, 256, 2, density=0.06),
     ],
     # simple constrained designs
+	"""
     'l_shape_0.2': [
         l_shape(64, 64, 2, aspect=0.2, density=0.4),
         l_shape(128, 128, 2, aspect=0.2, density=0.3),
@@ -524,6 +529,7 @@ PROBLEMS_BY_CATEGORY = {
         crane(256, 256, 2, density=0.15),
         crane(256, 256, 2, density=0.1),
     ],
+	"""
     # vertical support structures
     'center_support': [
         center_support(64, 64, 2, density=0.15),
@@ -597,6 +603,7 @@ PROBLEMS_BY_CATEGORY = {
         drawbridge(128, 128, 2, density=0.15),
         drawbridge(256, 256, 2, density=0.1),
     ],
+	"""
     # more complex design problems
     'hoop': [
         hoop(32, 64, 2, density=0.25),
@@ -622,6 +629,7 @@ PROBLEMS_BY_CATEGORY = {
         staircase(256, 256, 2, density=0.15, num_stories=3),
         staircase(128, 512, 2, density=0.15, num_stories=6),
     ],
+	"""
     'staggered_points': [
         staggered_points(64, 64, 2, density=0.3),
         staggered_points(128, 128, 2, density=0.3),
