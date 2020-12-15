@@ -63,8 +63,9 @@ autograd.extend.defvjp(gaussian_filter, _gaussian_filter_vjp)
 
 
 # Cone filter
+#2020-12-15 K.Taniguchi
 def _cone_filter_matrix(nelx, nely, nelz, radius, mask):
-  x, y = np.meshgrid(np.arange(nelx), np.arange(nely), indexing='ij')
+  x, y, z = np.meshgrid(np.arange(nelx), np.arange(nely), np.arange(nelz), indexing='ij')
 
   rows = []
   cols = []
@@ -72,35 +73,39 @@ def _cone_filter_matrix(nelx, nely, nelz, radius, mask):
   r_bound = int(np.ceil(radius))
   for dx in range(-r_bound, r_bound+1):
     for dy in range(-r_bound, r_bound+1):
-      weight = np.maximum(0, radius - np.sqrt(dx**2 + dy**2))
-      row = x + nelx * y
-      column = x + dx + nelx * (y + dy)
-      value = np.broadcast_to(weight, x.shape)
+      for dz in range(-r_bound, r_bound+1):
+        weight = np.maximum(0, radius - np.sqrt(dx**2 + dy**2 + dz**2))
+        #weight = np.maximum(0, radius - np.sqrt(dx**2 + dy**2))
+        row = x + nelx * y
+        column = x + dx + nelx * (y + dy)
+        value = np.broadcast_to(weight, x.shape)
 
-      # exclude cells beyond the boundary
-      valid = (
-          (mask > 0) &
-          ((x+dx) >= 0) &
-          ((x+dx) < nelx) &
-          ((y+dy) >= 0) &
-          ((y+dy) < nely)
-      )
-      rows.append(row[valid])
-      cols.append(column[valid])
-      values.append(value[valid])
+        # exclude cells beyond the boundary
+        valid = (
+            (mask > 0) &
+            ((x+dx) >= 0) &
+            ((x+dx) < nelx) &
+            ((y+dy) >= 0) &
+            ((y+dy) < nely) &
+            ((z+dz) >= 0) &
+            ((z+dz) < nelz)
+        )
+        rows.append(row[valid])
+        cols.append(column[valid])
+        values.append(value[valid])
 
   data = np.concatenate(values)
   i = np.concatenate(rows)
   j = np.concatenate(cols)
-  return scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely,) * 2)
-
+  return scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely * nelz,) * 2)
+  #return scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely,) * 2)
 
 @caching.ndarray_safe_lru_cache()
 def normalized_cone_filter_matrix(nx, ny, nz, radius, mask):
   """Calculate a sparse matrix appropriate for applying a cone filter."""
   raw_filters = _cone_filter_matrix(nx, ny, nz, radius, mask).tocsr()
   weights = 1 / raw_filters.sum(axis=0).squeeze()
-  diag_weights = scipy.sparse.spdiags(weights, 0, nx*ny, nx*ny),
+  diag_weights = scipy.sparse.spdiags(weights, 0, nx*ny*nz, nx*ny*nz),
   return (diag_weights @ raw_filters).tocsr()
 
 

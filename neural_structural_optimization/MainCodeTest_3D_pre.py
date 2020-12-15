@@ -51,7 +51,8 @@ ds.design.ffill('step').sel(step=100).plot.imshow(
 plt.suptitle(problem.name, y=1.02)
 
 
-"""MBB Beam (Figure 2 from paper)"""
+"""
+MBB Beam (Figure 2 from paper)""
 problem = problems.mbb_beam(height=20, width=60, depth=2)	#20201214 K.Taniguchi
 max_iterations = 200
 
@@ -81,7 +82,7 @@ images = [
 save_gif_movie([im.resize((5*120, 5*20)) for im in images], 'movie.gif')
 
 
-"""Multistory building"""
+"Multistory building""
 problem = problems.PROBLEMS_BY_NAME['multistory_building_64x128x2_0.4']
 max_iterations = 100  # keep things fast
 %time ds = train_all(problem, max_iterations)
@@ -100,7 +101,7 @@ plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)
 
 
-"""Thin support bridge"""
+"Thin support bridge""
 # we really need more iterations to see the CNN-LBFGS method dominate
 problem = problems.PROBLEMS_BY_NAME['thin_support_bridge_128x128x2_0.2']
 max_iterations = 200
@@ -119,3 +120,4 @@ plt.suptitle(problem.name)
     col='model', x='x', y='y', size=2.5, aspect=2, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys'))
 plt.suptitle(problem.name, y=1.02)
+"""
