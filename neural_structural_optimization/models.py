@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # lint as python3
 # Copyright 2019 Google LLC.
 #
@@ -86,7 +87,7 @@ def global_normalization(inputs, epsilon=1e-6):
 
 #UpSampling2D→UpSampling3D	20201214 K.Taniguchi
 def UpSampling3D(factor):
-  return layers.UpSampling3D((factor, factor, facor), interpolation='bilinear')
+  return layers.UpSampling3D((factor, factor, factor), interpolation='bilinear')
 
 #Conv2D→Conv3D	20201214 K.Taniguchi
 def Conv3D(filters, kernel_size, **kwargs):

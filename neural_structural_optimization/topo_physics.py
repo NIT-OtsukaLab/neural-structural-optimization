@@ -57,7 +57,7 @@ def default_args():
           'volfrac': 0.4,  # constraints
           'nelx': nelx,     # input parameters
           'nely': nely,
-		  'nelz': nelz,
+          'nelz': nelz,
           'freedofs': freedofs,
           'fixdofs': fixdofs,
           'forces': forces,

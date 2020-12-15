@@ -1,3 +1,18 @@
+# ---
+# jupyter:
+#   jupytext:
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.7.1
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
+
+# +
 from IPython import display
 from PIL import Image
 import seaborn
@@ -17,13 +32,13 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
         cnn_kwargs = {}
 
     model = models.PixelModel(args=args)
-    ds_mma = train.method_of_moving_asymptotes(model, max_iterations)
+#    ds_mma = train.method_of_moving_asymptotes(model, max_iterations)
 
-    model = models.PixelModel(args=args)
-    ds_oc = train.optimality_criteria(model, max_iterations)
+#    model = models.PixelModel(args=args)
+#    ds_oc = train.optimality_criteria(model, max_iterations)
 
-    model = models.PixelModel(args=args)
-    ds_pix = train.train_lbfgs(model, max_iterations)
+#    model = models.PixelModel(args=args)
+#    ds_pix = train.train_lbfgs(model, max_iterations)
 
     model = models.CNNModel(args=args, **cnn_kwargs)
     ds_cnn = train.train_lbfgs(model, max_iterations)
@@ -34,7 +49,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
 """MBB beam with a larger grid"""
 problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64x2_0.4']
 max_iterations = 100
-%time ds = train_all(problem, max_iterations)
+# %time ds = train_all(problem, max_iterations)
 
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
 plt.ylim(230, 330)
@@ -46,12 +61,18 @@ seaborn.despine()
 # early due to reaching a local minima), so use fill() to forward fill
 # to the last valid design.
 ds.design.ffill('step').sel(step=100).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', z='z', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
+ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
+    row='model', col='step', x='x', y='y', z='z', size=2, aspect=0.5,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.subplots_adjust(wspace=0.1, hspace=0.05)
+plt.suptitle(problem.name, y=1.02)
 
-"""MBB Beam (Figure 2 from paper)"""
+"""
+"MBB Beam (Figure 2 from paper)"
 problem = problems.mbb_beam(height=20, width=60, depth=2)	#20201214 K.Taniguchi
 max_iterations = 200
 
@@ -81,7 +102,7 @@ images = [
 save_gif_movie([im.resize((5*120, 5*20)) for im in images], 'movie.gif')
 
 
-"""Multistory building"""
+"Multistory building"
 problem = problems.PROBLEMS_BY_NAME['multistory_building_64x128x2_0.4']
 max_iterations = 100  # keep things fast
 %time ds = train_all(problem, max_iterations)
@@ -100,7 +121,7 @@ plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)
 
 
-"""Thin support bridge"""
+"Thin support bridge"
 # we really need more iterations to see the CNN-LBFGS method dominate
 problem = problems.PROBLEMS_BY_NAME['thin_support_bridge_128x128x2_0.2']
 max_iterations = 200
@@ -119,3 +140,6 @@ plt.suptitle(problem.name)
     col='model', x='x', y='y', size=2.5, aspect=2, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys'))
 plt.suptitle(problem.name, y=1.02)
+"""
+# -
+

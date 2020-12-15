@@ -475,6 +475,7 @@ PROBLEMS_BY_CATEGORY = {
         mbb_beam(384, 128, 2, density=0.3),
         mbb_beam(192, 32, 2, density=0.5),
         mbb_beam(384, 64, 2, density=0.4),
+        mbb_beam(2, 2, 2, density=0.2),
     ],
     'cantilever_beam_full': [
         cantilever_beam_full(96, 32, 2, density=0.4),
