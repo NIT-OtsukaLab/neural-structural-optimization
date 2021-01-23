@@ -21,7 +21,7 @@ import os
 import autograd
 import autograd.numpy as np
 from autograd.test_util import check_grads
-from neural_structural_optimization import topo_physics
+from neural_structural_optimization.Opt_2DModel_20201206 import topo_physics
 import numpy as npo
 from absl.testing import absltest
 

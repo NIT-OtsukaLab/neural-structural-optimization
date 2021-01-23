@@ -23,7 +23,7 @@ import autograd
 import autograd.core
 import autograd.extend
 import autograd.numpy as anp
-from neural_structural_optimization import caching
+from neural_structural_optimization.Opt_2DModel_20201206 import caching
 import numpy as np
 import scipy.ndimage
 import scipy.sparse

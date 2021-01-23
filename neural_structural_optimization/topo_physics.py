@@ -92,7 +92,7 @@ def mean_density(x, args, volume_contraint=False, cone_filter=True):
           / np.mean(args['mask']))
 
 
-def get_stiffness_matrix(young, poisson):	#20201218 K.Taniguchi
+def get_stiffness_matrix(young, poisson):	#20201219 K.Taniguchi
   # Element stiffness matrix
   e, nu = young, poisson
 
@@ -121,12 +121,17 @@ def get_stiffness_matrix(young, poisson):	#20201218 K.Taniguchi
     0,48,0,0,0,-24,0,-12,0,-12,48,0,24,0,24,0,-12,12,48,0,-24,0,12,-12,-12,
     48,0,0,0,-24,-24,48,0,24,0,0,48,24,0,0,48,0,0,48,0,48])))
 
-  n = int(np.sqrt(len(ke)*2))+1
-  idx = np.tril_indices(n, k=-1, m=n)
-  matrix = np.zeros((n,n)).astype(float)
+  n = int(np.sqrt(len(ke)*2))
+  idx = np.tril_indices(n, k=0, m=n)
+  matrix = np.zeros((n,n)).astype(int)
   matrix[idx] = ke
+  det = matrix.T
+  matrix = matrix + det
 
-  return matrix
+  diag = np.diag(matrix)
+  diag0 = np.diag(diag)/2
+
+  return matrix - diag0
 
 """
   k = np.array([1/2-nu/6, 1/8+nu/8, -1/4-nu/12, -1/8+3*nu/8,

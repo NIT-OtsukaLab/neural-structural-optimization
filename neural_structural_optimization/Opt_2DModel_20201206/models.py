@@ -19,7 +19,7 @@
 import autograd
 import autograd.core
 import autograd.numpy as np
-from neural_structural_optimization import topo_api
+from neural_structural_optimization.Opt_2DModel_20201206 import topo_api
 import tensorflow as tf
 
 # requires tensorflow 2.0

@@ -18,7 +18,7 @@ from typing import Any, Dict
 
 import matplotlib.cm
 import matplotlib.colors
-from neural_structural_optimization import problems
+from neural_structural_optimization.Opt_2DModel_20201206 import problems
 import numpy as np
 from PIL import Image
 import xarray

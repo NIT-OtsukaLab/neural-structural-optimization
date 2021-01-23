@@ -22,11 +22,11 @@ from absl import app
 from absl import flags
 from absl import logging
 import apache_beam as beam
-from neural_structural_optimization import models
-from neural_structural_optimization import pipeline_utils
-from neural_structural_optimization import problems
-from neural_structural_optimization import topo_api
-from neural_structural_optimization import train
+from neural_structural_optimization.Opt_2DModel_20201206 import models
+from neural_structural_optimization.Opt_2DModel_20201206 import pipeline_utils
+from neural_structural_optimization.Opt_2DModel_20201206 import problems
+from neural_structural_optimization.Opt_2DModel_20201206 import topo_api
+from neural_structural_optimization.Opt_2DModel_20201206 import train
 import numpy as np
 import tensorflow as tf
 import xarray

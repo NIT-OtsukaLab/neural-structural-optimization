@@ -20,11 +20,11 @@ import matplotlib.pyplot as plt
 import xarray
 import pandas as pd
 
-from neural_structural_optimization_20201206 import pipeline_utils
-from neural_structural_optimization_20201206 import problems
-from neural_structural_optimization_20201206 import models
-from neural_structural_optimization_20201206 import topo_api
-from neural_structural_optimization_20201206 import train
+from neural_structural_optimization.Opt_2DModel_20201206 import pipeline_utils
+from neural_structural_optimization.Opt_2DModel_20201206 import problems
+from neural_structural_optimization.Opt_2DModel_20201206 import models
+from neural_structural_optimization.Opt_2DModel_20201206 import topo_api
+from neural_structural_optimization.Opt_2DModel_20201206 import train
 
 
 def train_all(problem, max_iterations, cnn_kwargs=None):
@@ -50,7 +50,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
 #"MBB beam with a larger grid"
 problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64_0.4']
 max_iterations = 100
-# # %time ds = train_all(problem, max_iterations)
+# %time ds = train_all(problem, max_iterations)
 
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
 plt.ylim(230, 330)
@@ -74,7 +74,7 @@ max_iterations = 200
 
 # can't upscale by exactly 8x for a 60x20 design region, so upscale by
 # only 4x instead
-# # %time ds = train_all(problem, max_iterations, cnn_kwargs=dict(resizes=(1, 1, 2, 2, 1)))
+# %time ds = train_all(problem, max_iterations, cnn_kwargs=dict(resizes=(1, 1, 2, 2, 1)))
 
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
 plt.ylim(215, 260)
@@ -121,7 +121,7 @@ plt.suptitle(problem.name, y=1.02)
 # we really need more iterations to see the CNN-LBFGS method dominate
 problem = problems.PROBLEMS_BY_NAME['thin_support_bridge_128x128_0.2']
 max_iterations = 200
-# # %time ds = train_all(problem, max_iterations)
+# %time ds = train_all(problem, max_iterations)
 
 ds.loss.transpose().to_pandas().cummin().plot(linewidth=2)
 plt.ylim(70, 120)
@@ -138,5 +138,4 @@ plt.suptitle(problem.name)
 plt.suptitle(problem.name, y=1.02)
 
 # -
-
 

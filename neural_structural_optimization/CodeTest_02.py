@@ -107,25 +107,24 @@ n = int(np.sqrt(len(arr)*2))
 idx = np.tril_indices(n, k=0, m=n)
 matrix = np.zeros((n,n)).astype(int)
 matrix[idx] = arr
-
-idx_ = np.triu_indices(n, k=0, m=n)
-matrix_ = np.zeros((n,n)).astype(int)
-matrix_[idx_] = arr
-
-matrix = matrix + matrix_
-print(matrix)
+det = matrix.T
+matrix = matrix + det
 
 diag = np.diag(matrix)
-matrix = matrix - diag
+diag0 = np.diag(diag)/2
+matrix0 = matrix - diag0
 
 print(matrix)
-print(diag)
+print(diag0)
+print(matrix0)
 
 # +
 """Stiffness Matrix"""
 
-young = 18
-poisson = 1
+import autograd.numpy as np
+
+young = 1
+poisson = 0.3
 
 e, nu = young, poisson
 ke = np.multiply( e/(1+nu)/(2*nu-1)/144, ([-32,-6,-6,8,6,6,10,6,3,-4,-6,-3,-4,-3,-6,10,
@@ -154,22 +153,20 @@ ke = np.multiply( e/(1+nu)/(2*nu-1)/144, ([-32,-6,-6,8,6,6,10,6,3,-4,-6,-3,-4,-3
     48,0,0,0,-24,-24,48,0,24,0,0,48,24,0,0,48,0,0,48,0,48])))
 
 n = int(np.sqrt(len(ke)*2))
-idxu = np.triu_indices(n, k=0, m=n)
-idxl = np.tril_indices(n, k=0, m=n)
-matrixu = np.zeros((n,n)).astype(float)
-matrixl = np.zeros((n,n)).astype(float)
+idx = np.triu_indices(n, k=0, m=n)
+matrix = np.zeros((n,n)).astype(float)
 
-matrixu[idxu] = ke
-matrixl[idxl] = ke
+matrix[idx] = ke
+det = matrix.T
+matrix = matrix + det
 
-matrix = matrixu + matrixl
+diag = np.diag(matrix)
+diag0 = np.diag(diag)/2
+matrix0 = matrix - diag0
 
-print(matrix)
-
-matrix0 = matrix - np.diag(matrixu)
-
-print(np.diag(matrix))
-#print(matrix0)
+#print(matrix)
+#print(diag0)
+print(matrix0)
 
 
 # +

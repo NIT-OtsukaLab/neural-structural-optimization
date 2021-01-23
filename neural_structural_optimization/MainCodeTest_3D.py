@@ -31,7 +31,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     if cnn_kwargs is None:
         cnn_kwargs = {}
 
-    model = models.PixelModel(args=args)
+#    model = models.PixelModel(args=args)
 #    ds_mma = train.method_of_moving_asymptotes(model, max_iterations)
 
 #    model = models.PixelModel(args=args)
@@ -43,8 +43,11 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     model = models.CNNModel(args=args, **cnn_kwargs)
     ds_cnn = train.train_lbfgs(model, max_iterations)
 
-    dims = pd.Index(['cnn-lbfgs', 'mma', 'oc', 'pixel-lbfgs'], name='model')
-    return xarray.concat([ds_cnn, ds_mma, ds_oc, ds_pix], dim=dims)
+#    dims = pd.Index(['cnn-lbfgs', 'mma', 'oc', 'pixel-lbfgs'], name='model')
+#    return xarray.concat([ds_cnn, ds_mma, ds_oc, ds_pix], dim=dims)
+
+    dims = pd.Index(['cnn-lbfgs'], name='model')
+    return xarray.concat([ds_cnn], dim=dims)
 
 """MBB beam with a larger grid"""
 problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64x2_0.4']
@@ -57,9 +60,6 @@ plt.ylabel('Compliance (loss)')
 plt.xlabel('Optimization step')
 seaborn.despine()
 
-# the pixel-lbfgs does not run for the full 100 steps (it terminates
-# early due to reaching a local minima), so use fill() to forward fill
-# to the last valid design.
 ds.design.ffill('step').sel(step=100).plot.imshow(
     col='model', x='x', y='y', z='z', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')

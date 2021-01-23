@@ -17,7 +17,7 @@ import os.path
 from absl import flags
 from absl.testing import flagsaver
 import apache_beam as beam
-from neural_structural_optimization import pipeline
+from neural_structural_optimization.Opt_2DModel_20201206 import pipeline
 import tensorflow as tf
 
 from absl.testing import absltest
