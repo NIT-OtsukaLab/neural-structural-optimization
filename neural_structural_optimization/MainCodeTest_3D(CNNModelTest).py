@@ -28,8 +28,6 @@ from neural_structural_optimization import models
 from neural_structural_optimization import topo_api
 from neural_structural_optimization import train
 
-from neural_structural_optimization import CodeTest_04_CNNModel
-
 def train_all(problem, max_iterations, cnn_kwargs=None):
     args = topo_api.specified_task(problem)
     if cnn_kwargs is None:
@@ -43,7 +41,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     return xarray.concat([ds_cnn], dim=dims)
 
 """MBB beam with a larger grid"""
-problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64x2_0.4']
+problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64x64_0.4']
 max_iterations = 100
 
 # #%time ds = train_all(problem, max_iterations) %timeが機能しないため,以下の処理に変更

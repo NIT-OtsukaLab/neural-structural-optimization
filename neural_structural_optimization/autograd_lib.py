@@ -64,7 +64,50 @@ autograd.extend.defvjp(gaussian_filter, _gaussian_filter_vjp)
 
 # Cone filter
 #2020-12-15 K.Taniguchi
+class NDSparseMatrix:
+  def __init__(self):
+    self.elements = {}
+
+  def addValue(self, Tuple, value):
+    self.elements[Tuple] = value
+
+  def readValue(self, Tuple):
+    try:
+      value = self.elements[Tuple]
+    except KeyError:
+      # could also be 0.0 if using floats...
+      value = 0
+    return value
+
 def _cone_filter_matrix(nelx, nely, nelz, radius, mask):
+  #dx, dy, dz = np.meshgrid(-ceil(radius)+1:ceil(radius)-1, -ceil(radius)+1:ceil(radius)-1, -ceil(radius)+1:ceil(radius)-1)
+  dx, dy, dz = np.meshgrid(np.arange(nelx), np.arange(nely), np.arange(nelz), indexing='ij')
+  print("x=",dx)
+  print("y=",dy)
+  print("z=",dz)
+"""
+  r_bound = int(np.ceil(radius))
+  for dx in range(-r_bound, r_bound+1):
+    for dy in range(-r_bound, r_bound+1):
+      for dz in range(-r_bound, r_bound+1):
+"""
+  weight = np.maximum(0, radius - np.sqrt(dx**2 + dy**2 + dz**2))
+  shape = np.ones((dz, dy, dx))
+
+  wshape = [ii for ii in weights.shape if ii > 0]
+  print(wshape)
+  print(shape.ndim)
+  hs = scipy.ndimage.gaussian_filter(shape, weight)
+        #hs = scipy.ndimage.correlate(shape, weight, mode='nearest').transpose() #... RuntimeError: filter weights array has incorrect shape.
+        #hs = scipy.misc.imfilter(shape, weight).transpose() #... RuntimeError: filter weights array has incorrect shape.
+  print("hs=",hs)
+  print("Sparse hs=",NDSparseMatrix(hs))
+  return hs
+  #return NDSparseMatrix(hs)
+  #return scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely,) * 2)
+
+#2020-12-15 K.Taniguchi
+"""def _cone_filter_matrix(nelx, nely, nelz, radius, mask):
   x, y, z = np.meshgrid(np.arange(nelx), np.arange(nely), np.arange(nelz), indexing='ij')
 
   rows = []
@@ -97,15 +140,16 @@ def _cone_filter_matrix(nelx, nely, nelz, radius, mask):
   data = np.concatenate(values)
   i = np.concatenate(rows)
   j = np.concatenate(cols)
-  return scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely * nelz,) * 2)
+  return scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely * nelz,) * 3)
   #return scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely,) * 2)
+"""
 
 @caching.ndarray_safe_lru_cache()
 def normalized_cone_filter_matrix(nx, ny, nz, radius, mask):
   """Calculate a sparse matrix appropriate for applying a cone filter."""
   raw_filters = _cone_filter_matrix(nx, ny, nz, radius, mask).tocsr()
   weights = 1 / raw_filters.sum(axis=0).squeeze()
-  diag_weights = scipy.sparse.spdiags(weights, 0, nx*ny*nz, nx*ny*nz),
+  diag_weights = scipy.sparse.spdiags(weights, 0, nx*ny, ny*nz, nz*nx),
   return (diag_weights @ raw_filters).tocsr()
 
 

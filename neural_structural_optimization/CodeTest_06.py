@@ -195,16 +195,18 @@ for resize, filters in zip(resizes, conv_filters):
     net = UpSampling3D(resize)(net)
     net = normalization(net)
     net = Conv3D(filters, kernel_size, kernel_initializer=conv_initializer)(net)
-
+    
+    print("offset_scale=",offset_scale)
+    
     if offset_scale != 0:
-        net = AddOffset(offset_scale)(net)
+        net = models.AddOffset(offset_scale)(net)
 
 outputs = tf.squeeze(net, axis=[-1])
 
-self.core_model = tf.keras.Model(inputs=inputs, outputs=outputs)
+core_model = tf.keras.Model(inputs=inputs, outputs=outputs)
 
 latent_initializer = tf.initializers.RandomNormal(stddev=latent_scale)
-self.z = self.add_weight(shape=inputs.shape, initializer=latent_initializer, name='z')
+z = add_weight(shape=inputs.shape, initializer=latent_initializer, name='z')
 
 def call(self, inputs=None):
     return self.core_model(self.z)
@@ -213,4 +215,7 @@ def call(self, inputs=None):
 ds_cnn = train.train_lbfgs(model, max_iterations)
 dims = pd.Index(['cnn-lbfgs'], name='model')
 return xarray.concat([ds_cnn], dim=dims)
+# -
+
+
 
