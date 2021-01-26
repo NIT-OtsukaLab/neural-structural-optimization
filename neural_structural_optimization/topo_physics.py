@@ -201,23 +201,11 @@ def get_k(stiffness, ke):
   edof = np.array([2*n1, 2*n1+1, 2*n2, 2*n2+1, 2*n3, 2*n3+1, 2*n4, 2*n4+1,
                    2*n5, 2*n5+1, 2*n6, 2*n6+1, 2*n7, 2*n7+1, 2*n8, 2*n8+1,
                    2*n9, 2*n9+1, 2*n10, 2*n10+1, 2*n11, 2*n11+1, 2*n12, 2*n12+1])
-  edof00 = np.array([2*n1, 2*n1+1, 2*n2, 2*n2+1, 2*n3, 2*n3+1, 2*n4, 2*n4+1])
   edof = edof.T[0]
-  edof00 = edof.T[0]
-
-  print("edof00=",edof00)
-  print("edof=",edof)
 
   x_list = np.repeat(edof, 8)  # flat list pointer of each node in an element
   y_list = np.tile(edof, 8).flatten()  # flat list pointer of each node in elem
-  x_list00 = np.repeat(edof00, 8)
-  y_list00 = np.tile(edof00, 8).flatten()
   #z_list =
-
-  print("xlist00=",x_list00)
-  print("ylist00=",y_list00)
-  print("xlist=",x_list)
-  print("ylist=",y_list)
 
   # make the stiffness matrix
   kd = stiffness.T.reshape(nelx*nely*nelz, 1, 1)
