@@ -163,10 +163,10 @@ def displace(x_phys, ke, forces, freedofs, fixdofs, *,
   # Displaces the load x using finite element techniques. The spsolve here
   # occupies the majority of this entire simulation's runtime.
   stiffness = young_modulus(x_phys, e_0, e_min, p=penal)
-  k_entries, k_ylist, k_xlist = get_k(stiffness, ke)
+  k_entries, k_zlist, k_ylist, k_xlist = get_k(stiffness, ke)
 
   index_map, keep, indices = _get_dof_indices(
-      freedofs, fixdofs, k_ylist, k_xlist
+      freedofs, fixdofs, k_zlist, k_ylist, k_xlist
   )
   u_nonzero = autograd_lib.solve_coo(k_entries[keep], indices, forces[freedofs],
                                      sym_pos=True)
@@ -177,26 +177,52 @@ def displace(x_phys, ke, forces, freedofs, fixdofs, *,
 
 def get_k(stiffness, ke):
   # Constructs a sparse stiffness matrix, k, for use in the displace function.
-  nely, nelx = stiffness.shape
+  nelz, nely, nelx = stiffness.shape
 
   # get position of the nodes of each element in the stiffness matrix
-  ely, elx = np.meshgrid(range(nely), range(nelx))  # x, y coords
-  ely, elx = ely.reshape(-1, 1), elx.reshape(-1, 1)
+  elz, ely, elx = np.meshgrid(range(nelz), range(nely), range(nelx))  # x, y, z coords
+  elz, ely, elx = elz.reshape(-1, 1), ely.reshape(-1, 1), elx.reshape(-1, 1)
 
   n1 = (nely+1)*(elx+0) + (ely+0)
   n2 = (nely+1)*(elx+1) + (ely+0)
   n3 = (nely+1)*(elx+1) + (ely+1)
   n4 = (nely+1)*(elx+0) + (ely+1)
-  edof = np.array([2*n1, 2*n1+1, 2*n2, 2*n2+1, 2*n3, 2*n3+1, 2*n4, 2*n4+1])
+
+  n5 = (nelx+1)*(elz+0) + (elx+0)
+  n6 = (nelx+1)*(elz+1) + (elx+0)
+  n7 = (nelx+1)*(elz+1) + (elx+1)
+  n8 = (nelx+1)*(elz+0) + (elx+1)
+
+  n9 = (nelz+1)*(ely+0) + (elz+0)
+  n10 = (nelz+1)*(ely+1) + (elz+0)
+  n11 = (nelz+1)*(ely+1) + (elz+1)
+  n12 = (nelz+1)*(ely+0) + (elz+1)
+
+  edof = np.array([2*n1, 2*n1+1, 2*n2, 2*n2+1, 2*n3, 2*n3+1, 2*n4, 2*n4+1,
+                   2*n5, 2*n5+1, 2*n6, 2*n6+1, 2*n7, 2*n7+1, 2*n8, 2*n8+1,
+                   2*n9, 2*n9+1, 2*n10, 2*n10+1, 2*n11, 2*n11+1, 2*n12, 2*n12+1])
+  edof00 = np.array([2*n1, 2*n1+1, 2*n2, 2*n2+1, 2*n3, 2*n3+1, 2*n4, 2*n4+1])
   edof = edof.T[0]
+  edof00 = edof.T[0]
+
+  print("edof00=",edof00)
+  print("edof=",edof)
 
   x_list = np.repeat(edof, 8)  # flat list pointer of each node in an element
   y_list = np.tile(edof, 8).flatten()  # flat list pointer of each node in elem
+  x_list00 = np.repeat(edof00, 8)
+  y_list00 = np.tile(edof00, 8).flatten()
+  #z_list =
+
+  print("xlist00=",x_list00)
+  print("ylist00=",y_list00)
+  print("xlist=",x_list)
+  print("ylist=",y_list)
 
   # make the stiffness matrix
-  kd = stiffness.T.reshape(nelx*nely, 1, 1)
+  kd = stiffness.T.reshape(nelx*nely*nelz, 1, 1)
   value_list = (kd * np.tile(ke, kd.shape)).flatten()
-  return value_list, y_list, x_list
+  return value_list, z_list, y_list, x_list
 
 
 def young_modulus(x, e_0, e_min, p=3):
@@ -217,7 +243,20 @@ def compliance(x_phys, u, ke, *, penal=3, e_min=1e-9, e_0=1):
   n2 = (nely+1)*(elx+1) + (ely+0)
   n3 = (nely+1)*(elx+1) + (ely+1)
   n4 = (nely+1)*(elx+0) + (ely+1)
-  all_ixs = np.array([2*n1, 2*n1+1, 2*n2, 2*n2+1, 2*n3, 2*n3+1, 2*n4, 2*n4+1])
+
+  n5 = (nelx+1)*(elz+0) + (elx+0)
+  n6 = (nelx+1)*(elz+1) + (elx+0)
+  n7 = (nelx+1)*(elz+1) + (elx+1)
+  n8 = (nelx+1)*(elz+0) + (elx+1)
+
+  n9 = (nelz+1)*(ely+0) + (elz+0)
+  n10 = (nelz+1)*(ely+1) + (elz+0)
+  n11 = (nelz+1)*(ely+1) + (elz+1)
+  n12 = (nelz+1)*(ely+0) + (elz+1)
+
+  all_ixs = np.array([2*n1, 2*n1+1, 2*n2, 2*n2+1, 2*n3, 2*n3+1, 2*n4, 2*n4+1,
+                      2*n5, 2*n5+1, 2*n6, 2*n6+1, 2*n7, 2*n7+1, 2*n8, 2*n8+1,
+                      2*n9, 2*n9+1, 2*n10, 2*n10+1, 2*n11, 2*n11+1, 2*n12, 2*n12+1])
 
   # select from u matrix
   u_selected = u[all_ixs]
@@ -303,7 +342,8 @@ def calculate_forces(x_phys, args):
 def objective(x, ke, args, volume_contraint=False, cone_filter=True):
   """Objective function (compliance) for topology optimization."""
   kwargs = dict(penal=args['penal'], e_min=args['young_min'], e_0=args['young'])
-  x_phys = physical_density(x, args, volume_contraint=volume_contraint, cone_filter=cone_filter)
+#  x_phys = physical_density(x, args, volume_contraint=volume_contraint, cone_filter=cone_filter)
+  x_phys = physical_density(x, args, volume_contraint=volume_contraint, cone_filter=False)
   forces = calculate_forces(x_phys, args)
   u = displace(x_phys, ke, forces, args['freedofs'], args['fixdofs'], **kwargs)
   c = compliance(x_phys, u, ke, **kwargs)
