@@ -19,6 +19,7 @@ from PIL import Image
 import time
 import seaborn
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import xarray
 import pandas as pd
 
@@ -34,7 +35,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
         cnn_kwargs = {}
 
     model = models.CNNModel(args=args, **cnn_kwargs)
-#    model = CodeTest_04_CNNModel.CNNModel(args=args, **cnn_kwargs)
+    print("CNN Modeling is Done.")
     ds_cnn = train.train_lbfgs(model, max_iterations)
 
     dims = pd.Index(['cnn-lbfgs'], name='model')
@@ -66,8 +67,6 @@ ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)
-
-
 
 
 # -

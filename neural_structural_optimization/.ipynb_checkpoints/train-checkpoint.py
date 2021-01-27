@@ -79,7 +79,6 @@ train_adam = functools.partial(
 
 
 def _set_variables(variables, x):
-  print("i")
   shapes = [v.shape.as_list() for v in variables]
   values = tf.split(x, [np.prod(s) for s in shapes])
   for var, value in zip(variables, values):
@@ -107,6 +106,7 @@ def train_lbfgs(
     model.z.assign(tf.cast(init_model(None), model.z.dtype))
 
   tvars = model.trainable_variables
+  print("tvars=", tvars)
 
   def value_and_grad(x):
     _set_variables(tvars, x)
@@ -121,11 +121,9 @@ def train_lbfgs(
 
   x0 = _get_variables(tvars).astype(np.float64)
   # rely upon the step limit instead of error tolerance for finishing.
-#  _, _, info = scipy.optimize.fmin_l_bfgs_b(
-#      value_and_grad, x0, maxfun=max_iterations, factr=1, pgtol=1e-14, **kwargs
   _, _, info = scipy.optimize.fmin_l_bfgs_b(
-      value_and_grad, x0, maxfun=max_iterations)
-
+      value_and_grad, x0, maxfun=max_iterations, factr=1, pgtol=1e-14, **kwargs
+  )
   logging.info(info)
 
   designs = [model.env.render(x, volume_contraint=True) for x in frames]

@@ -163,11 +163,12 @@ def displace(x_phys, ke, forces, freedofs, fixdofs, *,
   # Displaces the load x using finite element techniques. The spsolve here
   # occupies the majority of this entire simulation's runtime.
   stiffness = young_modulus(x_phys, e_0, e_min, p=penal)
-  k_entries, k_zlist, k_ylist, k_xlist = get_k(stiffness, ke)
+  k_entries, k_ylist, k_xlist = get_k(stiffness, ke)
 
   index_map, keep, indices = _get_dof_indices(
-      freedofs, fixdofs, k_zlist, k_ylist, k_xlist
+      freedofs, fixdofs, k_ylist, k_xlist
   )
+
   u_nonzero = autograd_lib.solve_coo(k_entries[keep], indices, forces[freedofs],
                                      sym_pos=True)
   u_values = np.concatenate([u_nonzero, np.zeros(len(fixdofs))])
@@ -203,14 +204,14 @@ def get_k(stiffness, ke):
                    2*n9, 2*n9+1, 2*n10, 2*n10+1, 2*n11, 2*n11+1, 2*n12, 2*n12+1])
   edof = edof.T[0]
 
-  x_list = np.repeat(edof, 8)  # flat list pointer of each node in an element
-  y_list = np.tile(edof, 8).flatten()  # flat list pointer of each node in elem
-  #z_list =
+#24の理由不明
+  x_list = np.repeat(edof, 24)  # flat list pointer of each node in an element
+  y_list = np.tile(edof, 24).flatten()  # flat list pointer of each node in elem
 
   # make the stiffness matrix
   kd = stiffness.T.reshape(nelx*nely*nelz, 1, 1)
   value_list = (kd * np.tile(ke, kd.shape)).flatten()
-  return value_list, z_list, y_list, x_list
+  return value_list, y_list, x_list
 
 
 def young_modulus(x, e_0, e_min, p=3):
@@ -223,8 +224,8 @@ def compliance(x_phys, u, ke, *, penal=3, e_min=1e-9, e_0=1):
   # https://colab.research.google.com/drive/1PE-otq5hAMMi_q9dC6DkRvf2xzVhWVQ4
 
   # index map
-  nely, nelx = x_phys.shape
-  ely, elx = np.meshgrid(range(nely), range(nelx))  # x, y coords
+  nelz, nely, nelx = x_phys.shape
+  ely, ely, elx = np.meshgrid(range(nelz), range(nely), range(nelx))  # x, y coords
 
   # nodes
   n1 = (nely+1)*(elx+0) + (ely+0)

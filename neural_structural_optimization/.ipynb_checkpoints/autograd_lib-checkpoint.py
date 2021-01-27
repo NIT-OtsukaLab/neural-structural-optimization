@@ -93,8 +93,7 @@ def _cone_filter_matrix(nelx, nely, nelz, radius, mask):
 
   #hs = scipy.ndimage.gaussian_filter(shape, weight)
   #hs = scipy.ndimage.correlate(shape, weight, mode='nearest')
-  sparse = NDSparseMatrix
-  hs = sparse(scipy.ndimage.correlate(shape, weight, mode='nearest').transpose())
+  hs = scipy.ndimage.correlate(shape, weight, mode='nearest').transpose()
         #hs = scipy.misc.imfilter(shape, weight).transpose() #... RuntimeError: filter weights array has incorrect shape.
 
   #Hs = NDSparseMatrix(hs)
