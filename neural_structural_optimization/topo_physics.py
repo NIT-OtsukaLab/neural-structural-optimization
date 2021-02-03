@@ -25,6 +25,7 @@ http://www.topopt.mek.dtu.dk/Apps-and-software/Efficient-topology-optimization-i
 
 import autograd
 import autograd.numpy as np
+import scipy.sparse
 from neural_structural_optimization import autograd_lib
 from neural_structural_optimization import caching
 
@@ -37,7 +38,7 @@ from neural_structural_optimization import caching
 
 def default_args():
   # select the degrees of freedom
-  nelz = 2
+  nelz = 25
   nely = 25
   nelx = 80
 
@@ -122,16 +123,15 @@ def get_stiffness_matrix(young, poisson):	#20201219 K.Taniguchi
     48,0,0,0,-24,-24,48,0,24,0,0,48,24,0,0,48,0,0,48,0,48])))
 
   n = int(np.sqrt(len(ke)*2))
-  idx = np.tril_indices(n, k=0, m=n)
-  matrix = np.zeros((n,n)).astype(int)
-  matrix[idx] = ke
-  det = matrix.T
-  matrix = matrix + det
-
-  diag = np.diag(matrix)
+  matrix = np.tri(n)
+  cm = scipy.sparse.coo_matrix(matrix)
+  ke0 = scipy.sparse.coo_matrix((ke,(cm.row,cm.col))).toarray()
+  det = ke0.T
+  ke0 = ke0 + det
+  diag = np.diag(ke0)
   diag0 = np.diag(diag)/2
 
-  return matrix - diag0
+  return ke0 - diag0
 
 """
   k = np.array([1/2-nu/6, 1/8+nu/8, -1/4-nu/12, -1/8+3*nu/8,
@@ -154,7 +154,9 @@ def _get_dof_indices(freedofs, fixdofs, k_xlist, k_ylist):
       np.concatenate([freedofs, fixdofs]))
   keep = np.isin(k_xlist, freedofs) & np.isin(k_ylist, freedofs)
   i = index_map[k_ylist][keep]
+  print(type(i))
   j = index_map[k_xlist][keep]
+  print(type(j))
   return index_map, keep, np.stack([i, j])
 
 
@@ -177,6 +179,62 @@ def displace(x_phys, ke, forces, freedofs, fixdofs, *,
 
 
 def get_k(stiffness, ke):
+### Revised Program Start ###
+  print("Revised 'get_k' Program Start")
+  # Constructs a sparse stiffness matrix, k, for use in the displace function.
+  nelz, nely, nelx = stiffness.shape
+  nEl = nelx*nely*nelz
+  nDof = (nelx+1)*(nely+1)*(nelz+1)*3
+  ANodes = np.meshgrid(range((1+nelx)*(1+nely)*(1+nelz)))
+  ANodes = np.array(ANodes)
+  nodeNrs = ANodes.reshape(1+nelz, 1+nely, 1+nelx)
+  cVec = 3*nodeNrs[:nelz,:nely,:nelx]+4
+  cVec = cVec.reshape(nEl,-1)
+
+  L1 = [3*(nely+1)*(nelz+1)]*6
+  L2 = [3*(nely+1)]*3
+  L3 = [3*(nely+1)*(nelz+2)]*6
+  L4 = [3*(nely+1)]*3
+
+  cMat = cVec + np.concatenate([[0, 1, 2], L1+np.array([0, 1, 2, -3, -2, -1]),
+                  [-3, -2, -1], L2+np.array([0, 1, 2]),
+                  L3+np.array([0, 1, 2, -3, -2, -1]),
+                  L4+np.array([-3, -2, -1])])
+
+  sI, sII, sII_ = list(range(24)), [], []
+  for i in range(23,0,-1):
+    sI = np.concatenate([sI,sI[0:i]],0)
+
+  for j in range(0,24,1):
+    sII_ = [j]*(24-j)
+    sII.extend(sII_)
+  sII = np.array(sII)
+
+  ik, jk = [], []
+
+  for var in sI:
+    ik_ = cMat[:, var]
+    ik.extend(ik_)
+  ik = np.array(ik).T
+
+  for var in sII:
+    jk_ = cMat[:, var]
+    jk.extend(jk_)
+  jk = np.array(jk).T
+
+  x_list = jk
+  y_list = ik
+### Revised Program End ###
+
+  # make the stiffness matrix
+  kd = stiffness.T.reshape(nelx*nely*nelz, 1, 1)
+  value_list = (kd * np.tile(ke, kd.shape)).flatten()
+  print("get_k is Done")
+
+  return value_list, y_list, x_list
+
+"""
+  print("get_k")
   # Constructs a sparse stiffness matrix, k, for use in the displace function.
   nelz, nely, nelx = stiffness.shape
 
@@ -184,35 +242,25 @@ def get_k(stiffness, ke):
   elz, ely, elx = np.meshgrid(range(nelz), range(nely), range(nelx))  # x, y, z coords
   elz, ely, elx = elz.reshape(-1, 1), ely.reshape(-1, 1), elx.reshape(-1, 1)
 
-  n1 = (nely+1)*(elx+0) + (ely+0)
-  n2 = (nely+1)*(elx+1) + (ely+0)
-  n3 = (nely+1)*(elx+1) + (ely+1)
-  n4 = (nely+1)*(elx+0) + (ely+1)
+  n1 = (nely+1)*(elx+0) + (ely+0) + (nelx+1)*(nely+1)*elz
+  n2 = (nely+1)*(elx+1) + (ely+0) + (nelx+1)*(nely+1)*elz
+  n3 = (nely+1)*(elx+1) + (ely+1) + (nelx+1)*(nely+1)*elz
+  n4 = (nely+1)*(elx+0) + (ely+1) + (nelx+1)*(nely+1)*elz
 
-  n5 = (nelx+1)*(elz+0) + (elx+0)
-  n6 = (nelx+1)*(elz+1) + (elx+0)
-  n7 = (nelx+1)*(elz+1) + (elx+1)
-  n8 = (nelx+1)*(elz+0) + (elx+1)
-
-  n9 = (nelz+1)*(ely+0) + (elz+0)
-  n10 = (nelz+1)*(ely+1) + (elz+0)
-  n11 = (nelz+1)*(ely+1) + (elz+1)
-  n12 = (nelz+1)*(ely+0) + (elz+1)
+  n5 = n1 + (nelx+1)*(nely+1)
+  n6 = n2 + (nelx+1)*(nely+1)
+  n7 = n3 + (nelx+1)*(nely+1)
+  n8 = n4 + (nelx+1)*(nely+1)
 
   edof = np.array([2*n1, 2*n1+1, 2*n2, 2*n2+1, 2*n3, 2*n3+1, 2*n4, 2*n4+1,
-                   2*n5, 2*n5+1, 2*n6, 2*n6+1, 2*n7, 2*n7+1, 2*n8, 2*n8+1,
-                   2*n9, 2*n9+1, 2*n10, 2*n10+1, 2*n11, 2*n11+1, 2*n12, 2*n12+1])
+                   2*n5, 2*n5+1, 2*n6, 2*n6+1, 2*n7, 2*n7+1, 2*n8, 2*n8+1,])
+
   edof = edof.T[0]
 
-#24の理由不明
+#Num. of row/col in Element stiffness matrix is 24.
   x_list = np.repeat(edof, 24)  # flat list pointer of each node in an element
   y_list = np.tile(edof, 24).flatten()  # flat list pointer of each node in elem
-
-  # make the stiffness matrix
-  kd = stiffness.T.reshape(nelx*nely*nelz, 1, 1)
-  value_list = (kd * np.tile(ke, kd.shape)).flatten()
-  return value_list, y_list, x_list
-
+"""
 
 def young_modulus(x, e_0, e_min, p=3):
   return e_min + x ** p * (e_0 - e_min)
@@ -225,27 +273,15 @@ def compliance(x_phys, u, ke, *, penal=3, e_min=1e-9, e_0=1):
 
   # index map
   nelz, nely, nelx = x_phys.shape
-  ely, ely, elx = np.meshgrid(range(nelz), range(nely), range(nelx))  # x, y coords
 
-  # nodes
-  n1 = (nely+1)*(elx+0) + (ely+0)
-  n2 = (nely+1)*(elx+1) + (ely+0)
-  n3 = (nely+1)*(elx+1) + (ely+1)
-  n4 = (nely+1)*(elx+0) + (ely+1)
+  ANodes = np.array(np.meshgrid(range((1+nelx)*(1+nely)*(1+nelz))))
+  nodeNrs = ANodes.reshape(1+nelz, 1+nely, 1+nelx)
+  cVec = (3*nodeNrs[:nelz,:nely,:nelx]+4).reshape(nEl,-1)
 
-  n5 = (nelx+1)*(elz+0) + (elx+0)
-  n6 = (nelx+1)*(elz+1) + (elx+0)
-  n7 = (nelx+1)*(elz+1) + (elx+1)
-  n8 = (nelx+1)*(elz+0) + (elx+1)
-
-  n9 = (nelz+1)*(ely+0) + (elz+0)
-  n10 = (nelz+1)*(ely+1) + (elz+0)
-  n11 = (nelz+1)*(ely+1) + (elz+1)
-  n12 = (nelz+1)*(ely+0) + (elz+1)
-
-  all_ixs = np.array([2*n1, 2*n1+1, 2*n2, 2*n2+1, 2*n3, 2*n3+1, 2*n4, 2*n4+1,
-                      2*n5, 2*n5+1, 2*n6, 2*n6+1, 2*n7, 2*n7+1, 2*n8, 2*n8+1,
-                      2*n9, 2*n9+1, 2*n10, 2*n10+1, 2*n11, 2*n11+1, 2*n12, 2*n12+1])
+  all_ixs = cVec + np.concatenate([[0, 1, 2], L1+np.array([0, 1, 2, -3, -2, -1]),
+                  [-3, -2, -1], L2+np.array([0, 1, 2]),
+                  L3+np.array([0, 1, 2, -3, -2, -1]),
+                  L4+np.array([-3, -2, -1])])
 
   # select from u matrix
   u_selected = u[all_ixs]

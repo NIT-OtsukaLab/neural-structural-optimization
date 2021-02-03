@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # lint as python3
 # Copyright 2019 Google LLC.
 #
@@ -74,9 +75,7 @@ def _cone_filter_matrix(nelx, nely, radius, mask):
     for dy in range(-r_bound, r_bound+1):
       weight = np.maximum(0, radius - np.sqrt(dx**2 + dy**2))
       row = x + nelx * y
-      print("row=",row)
       column = x + dx + nelx * (y + dy)
-      print("column=",column)
       value = np.broadcast_to(weight, x.shape)
 
       # exclude cells beyond the boundary
@@ -91,9 +90,20 @@ def _cone_filter_matrix(nelx, nely, radius, mask):
       cols.append(column[valid])
       values.append(value[valid])
 
+  print("row.shape=",row.shape)
+  print("row=",row)
+
+  print("cols.shape=",column.shape)
+  print("cols=",column)
+
   data = np.concatenate(values)
   i = np.concatenate(rows)
   j = np.concatenate(cols)
+
+  print("data=",data)
+  print("i,j=",i,j)
+  print(scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely,) * 2))
+
   return scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely,) * 2)
 
 
@@ -103,6 +113,11 @@ def normalized_cone_filter_matrix(nx, ny, radius, mask):
   raw_filters = _cone_filter_matrix(nx, ny, radius, mask).tocsr()
   weights = 1 / raw_filters.sum(axis=0).squeeze()
   diag_weights = scipy.sparse.spdiags(weights, 0, nx*ny, nx*ny)
+
+  print("raw_filters=",raw_filters)
+  print("weights=",weights)
+  print("diag_weights=",diag_weights)
+
   return (diag_weights @ raw_filters).tocsr()
 
 
@@ -147,7 +162,8 @@ def _get_solver(a_entries, a_indices, size, sym_pos):
   # A cache size of one is sufficient to avoid re-computing the factorization in
   # the backwawrds pass.
   a = scipy.sparse.coo_matrix((a_entries, a_indices), shape=(size,)*2).tocsc()
-  if sym_pos and HAS_CHOLMOD:
+　if sym_pos and HAS_CHOLMOD:
+    print(sym_pos)
     return sksparse.cholmod.cholesky(a).solve_A
   else:
     # could also use scikits.umfpack.splu

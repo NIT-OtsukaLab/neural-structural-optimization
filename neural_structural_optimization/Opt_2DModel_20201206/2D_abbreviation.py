@@ -68,11 +68,5 @@ plt.suptitle(problem.name, y=1.02)
 
 
 
-
-
-
-
-
-
 # -
 

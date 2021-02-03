@@ -81,6 +81,7 @@ class NDSparseMatrix:
     return value
 
 def _cone_filter_matrix(nelx, nely, nelz, radius, mask):
+  print("_cone_filter_matrix")
   arange = np.arange(-math.ceil(radius)+1,math.ceil(radius)-1)
   [dy, dz, dx] = np.meshgrid(arange, arange, arange)
   #dx, dy, dz = np.meshgrid(np.arange(nelx), np.arange(nely), np.arange(nelz), indexing='ij')
@@ -147,10 +148,10 @@ def normalized_cone_filter_matrix(nx, ny, nz, radius, mask):
   """Calculate a sparse matrix appropriate for applying a cone filter."""
   #raw_filters = _cone_filter_matrix(nx, ny, nz, radius, mask).tocsr()
   raw_filters = _cone_filter_matrix(nx, ny, nz, radius, mask)
-  #weights = 1 / raw_filters.sum(axis=0).squeeze()
-  #diag_weights = scipy.sparse.spdiags(weights, 0, nx*ny, ny*nz, nz*nx),
-  #return (diag_weights @ raw_filters).tocsr()
-  return(raw_filters)
+  weights = 1 / raw_filters.sum(axis=0).squeeze()
+  diag_weights = scipy.sparse.spdiags(weights, 0, nx*ny*nz, nx*ny*nz),
+  return (diag_weights @ raw_filters).tocsr()
+  #return(raw_filters)
 
 
 @autograd.extend.primitive
@@ -189,11 +190,14 @@ def scatter1d(nonzero_values, nonzero_indices, array_len):
 
 @caching.ndarray_safe_lru_cache(1)
 def _get_solver(a_entries, a_indices, size, sym_pos):
+  print("_get_solver")
   """Get a solver for applying the desired matrix factorization."""
   # A cache size of one is sufficient to avoid re-computing the factorization in
   # the backwawrds pass.
   #a = scipy.ndimage.correlate(shape, weight, mode='nearest').transpose()
+  print("Sym_pos=",sym_pos)
   a = scipy.sparse.coo_matrix((a_entries, a_indices), shape=(size,)*2).tocsc()
+  #HAS_CHOLMOD = False    #Func Check /// Root else
   if sym_pos and HAS_CHOLMOD:
     return sksparse.cholmod.cholesky(a).solve_A
   else:

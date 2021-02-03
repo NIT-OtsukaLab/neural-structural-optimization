@@ -37,7 +37,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     model = models.CNNModel(args=args, **cnn_kwargs)
     print("CNN Modeling is Done.")
     ds_cnn = train.train_lbfgs(model, max_iterations)
-
+    print("Training Done.")
     dims = pd.Index(['cnn-lbfgs'], name='model')
     return xarray.concat([ds_cnn], dim=dims)
 
@@ -45,7 +45,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
 problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64x64_0.4']
 max_iterations = 100
 
-# #%time ds = train_all(problem, max_iterations) %timeが機能しないため,以下の処理に変更
+# # #%time ds = train_all(problem, max_iterations) %timeが機能しないため,以下の処理に変更
 start = time.time()
 ds = train_all(problem, max_iterations)
 e_time = time.time() - start
@@ -67,7 +67,6 @@ ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)
-
 
 # -
 

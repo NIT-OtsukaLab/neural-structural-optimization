@@ -162,6 +162,7 @@ def _get_solver(a_entries, a_indices, size, sym_pos):
   # the backwawrds pass.
   a = scipy.sparse.coo_matrix((a_entries, a_indices), shape=(size,)*2).tocsc()
   if sym_pos and HAS_CHOLMOD:
+    print(sym_pos)
     return sksparse.cholmod.cholesky(a).solve_A
   else:
     # could also use scikits.umfpack.splu
