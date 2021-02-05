@@ -26,6 +26,7 @@ http://www.topopt.mek.dtu.dk/Apps-and-software/Efficient-topology-optimization-i
 import autograd
 import autograd.numpy as np
 import scipy.sparse
+import math
 from neural_structural_optimization import autograd_lib
 from neural_structural_optimization import caching
 
@@ -72,6 +73,7 @@ def default_args():
 
 
 def physical_density(x, args, volume_contraint=False, cone_filter=True):
+  print("...physical_density")
   shape = (args['nelz'], args['nely'], args['nelx'])
   assert x.shape == shape or x.ndim == 1
   x = x.reshape(shape)
@@ -95,6 +97,7 @@ def mean_density(x, args, volume_contraint=False, cone_filter=True):
 
 def get_stiffness_matrix(young, poisson):	#20201219 K.Taniguchi
   # Element stiffness matrix
+  print("...get_stiffness_matrix")
   e, nu = young, poisson
 
   ke = np.multiply( e/(1+nu)/(2*nu-1)/144, ([-32,-6,-6,8,6,6,10,6,3,-4,-6,-3,-4,-3,-6,10,
@@ -122,6 +125,9 @@ def get_stiffness_matrix(young, poisson):	#20201219 K.Taniguchi
     0,48,0,0,0,-24,0,-12,0,-12,48,0,24,0,24,0,-12,12,48,0,-24,0,12,-12,-12,
     48,0,0,0,-24,-24,48,0,24,0,0,48,24,0,0,48,0,0,48,0,48])))
 
+  return ke
+
+  """
   n = int(np.sqrt(len(ke)*2))
   matrix = np.tri(n)
   cm = scipy.sparse.coo_matrix(matrix)
@@ -132,8 +138,10 @@ def get_stiffness_matrix(young, poisson):	#20201219 K.Taniguchi
   diag0 = np.diag(diag)/2
 
   return ke0 - diag0
+  """
 
-"""
+
+  """
   k = np.array([1/2-nu/6, 1/8+nu/8, -1/4-nu/12, -1/8+3*nu/8,
                 -1/4+nu/12, -1/8-nu/8, nu/6, 1/8-3*nu/8])
     return e/(1-nu**2)*np.array([[k[0], k[1], k[2], k[3], k[4], k[5], k[6], k[7]],
@@ -145,31 +153,37 @@ def get_stiffness_matrix(young, poisson):	#20201219 K.Taniguchi
                                [k[6], k[3], k[4], k[1], k[2], k[7], k[0], k[5]],
                                [k[7], k[2], k[1], k[4], k[3], k[6], k[5], k[0]]
                               ])
-"""
+  """
 
 
 @caching.ndarray_safe_lru_cache(1)
 def _get_dof_indices(freedofs, fixdofs, k_xlist, k_ylist):
+  print("..._get_dof_indices")
   index_map = autograd_lib.inverse_permutation(
       np.concatenate([freedofs, fixdofs]))
   keep = np.isin(k_xlist, freedofs) & np.isin(k_ylist, freedofs)
+  print("freedofs",freedofs,freedofs.size)
+  print("k_xlist",k_xlist,k_xlist.size)
+  print("k_ylist",k_ylist,k_ylist.size)
   i = index_map[k_ylist][keep]
-  print(type(i))
   j = index_map[k_xlist][keep]
-  print(type(j))
+
   return index_map, keep, np.stack([i, j])
 
 
 def displace(x_phys, ke, forces, freedofs, fixdofs, *,
              penal=3, e_min=1e-9, e_0=1):
+  print("...displace")
   # Displaces the load x using finite element techniques. The spsolve here
   # occupies the majority of this entire simulation's runtime.
   stiffness = young_modulus(x_phys, e_0, e_min, p=penal)
   k_entries, k_ylist, k_xlist = get_k(stiffness, ke)
-
   index_map, keep, indices = _get_dof_indices(
       freedofs, fixdofs, k_ylist, k_xlist
   )
+
+  print("k_entries",k_entries.size)
+  print("keep",keep.size)
 
   u_nonzero = autograd_lib.solve_coo(k_entries[keep], indices, forces[freedofs],
                                      sym_pos=True)
@@ -180,7 +194,7 @@ def displace(x_phys, ke, forces, freedofs, fixdofs, *,
 
 def get_k(stiffness, ke):
 ### Revised Program Start ###
-  print("Revised 'get_k' Program Start")
+  print("...get_k")
   # Constructs a sparse stiffness matrix, k, for use in the displace function.
   nelz, nely, nelx = stiffness.shape
   nEl = nelx*nely*nelz
@@ -204,32 +218,47 @@ def get_k(stiffness, ke):
   sI, sII, sII_ = list(range(24)), [], []
   for i in range(23,0,-1):
     sI = np.concatenate([sI,sI[0:i]],0)
-
   for j in range(0,24,1):
     sII_ = [j]*(24-j)
     sII.extend(sII_)
   sII = np.array(sII)
 
   ik, jk = [], []
-
   for var in sI:
     ik_ = cMat[:, var]
     ik.extend(ik_)
-  ik = np.array(ik).T
-
   for var in sII:
     jk_ = cMat[:, var]
     jk.extend(jk_)
-  jk = np.array(jk).T
+
+  Iar = sorted([ik[:],jk[:]], reverse=True)   #list形式
+  Iar = np.array(Iar)
+
+  ik = Iar[0,:]
+  jk = Iar[1,:]
+  #ik = np.array(ik).T
+  #jk = np.array(jk).T
 
   x_list = jk
   y_list = ik
-### Revised Program End ###
+
+  ke = ke.reshape([-1,1])
+  stiffness = stiffness.reshape([1,-1])
 
   # make the stiffness matrix
-  kd = stiffness.T.reshape(nelx*nely*nelz, 1, 1)
-  value_list = (kd * np.tile(ke, kd.shape)).flatten()
-  print("get_k is Done")
+  #print("stiffness",stiffness.size)
+  #kd = stiffness.T.reshape(nEl, 1, 1)
+  kd = np.reshape(ke*stiffness,[ke.size*nEl,1]).squeeze(-1)
+
+  #size compensation
+  if math.ceil(ik.size/nDof) >= 0:
+      a = math.ceil(ik.size/nDof)
+  else:
+      a = 1
+
+  value_list = scipy.sparse.coo_matrix((kd,(ik,jk)),shape=(a*nDof,a*nDof)).toarray().flatten()
+  #value_list = scipy.sparse.coo_matrix((kd,(ik,jk)),shape=(nDof,nDof)).toarray().flatten()
+  #value_list = (kd * np.tile(ke, kd.shape)).flatten()
 
   return value_list, y_list, x_list
 
@@ -263,6 +292,7 @@ def get_k(stiffness, ke):
 """
 
 def young_modulus(x, e_0, e_min, p=3):
+  print("...young_modulus")
   return e_min + x ** p * (e_0 - e_min)
 
 
@@ -272,6 +302,7 @@ def compliance(x_phys, u, ke, *, penal=3, e_min=1e-9, e_0=1):
   # https://colab.research.google.com/drive/1PE-otq5hAMMi_q9dC6DkRvf2xzVhWVQ4
 
   # index map
+  print("...compliance")
   nelz, nely, nelx = x_phys.shape
 
   ANodes = np.array(np.meshgrid(range((1+nelx)*(1+nely)*(1+nelz))))
@@ -365,6 +396,7 @@ def calculate_forces(x_phys, args):
 
 
 def objective(x, ke, args, volume_contraint=False, cone_filter=True):
+  print("...objective")
   """Objective function (compliance) for topology optimization."""
   kwargs = dict(penal=args['penal'], e_min=args['young_min'], e_0=args['young'])
 #  x_phys = physical_density(x, args, volume_contraint=volume_contraint, cone_filter=cone_filter)
