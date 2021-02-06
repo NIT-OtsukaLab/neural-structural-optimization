@@ -73,7 +73,7 @@ def default_args():
 
 
 def physical_density(x, args, volume_contraint=False, cone_filter=False):   #cone_filter=Truee
-  print("...physical_density")
+  #print("...physical_density")
   shape = (args['nelz'], args['nely'], args['nelx'])
   assert x.shape == shape or x.ndim == 1
   x = x.reshape(shape)
@@ -97,7 +97,7 @@ def mean_density(x, args, volume_contraint=False, cone_filter=True):
 
 def get_stiffness_matrix(young, poisson):	#20201219 K.Taniguchi
   # Element stiffness matrix
-  print("...get_stiffness_matrix")
+  #print("...get_stiffness_matrix")
   e, nu = young, poisson
 
   ke = np.multiply( e/(1+nu)/(2*nu-1)/144, ([-32,-6,-6,8,6,6,10,6,3,-4,-6,-3,-4,-3,-6,10,
@@ -137,8 +137,6 @@ def get_stiffness_matrix(young, poisson):	#20201219 K.Taniguchi
 
   return ke
 
-
-
   """
   k = np.array([1/2-nu/6, 1/8+nu/8, -1/4-nu/12, -1/8+3*nu/8,
                 -1/4+nu/12, -1/8-nu/8, nu/6, 1/8-3*nu/8])
@@ -156,7 +154,7 @@ def get_stiffness_matrix(young, poisson):	#20201219 K.Taniguchi
 
 @caching.ndarray_safe_lru_cache(1)
 def _get_dof_indices(freedofs, fixdofs, k_xlist, k_ylist):
-  print("..._get_dof_indices")
+  #print("..._get_dof_indices")
   index_map = autograd_lib.inverse_permutation(
       np.concatenate([freedofs, fixdofs]))
   keep = np.isin(k_xlist, freedofs) & np.isin(k_ylist, freedofs)
@@ -168,7 +166,7 @@ def _get_dof_indices(freedofs, fixdofs, k_xlist, k_ylist):
 
 def displace(x_phys, ke, forces, freedofs, fixdofs, *,
              penal=3, e_min=1e-9, e_0=1):
-  print("...displace")
+  #print("...displace")
   # Displaces the load x using finite element techniques. The spsolve here
   # occupies the majority of this entire simulation's runtime.
   stiffness = young_modulus(x_phys, e_0, e_min, p=penal)
@@ -185,7 +183,7 @@ def displace(x_phys, ke, forces, freedofs, fixdofs, *,
 
 def get_k(stiffness, ke):
 ### Revised Program Start ###
-  print("...get_k")
+  #print("...get_k")
   # Constructs a sparse stiffness matrix, k, for use in the displace function.
   """
   nelz, nely, nelx = stiffness.shape
@@ -293,7 +291,7 @@ def get_k(stiffness, ke):
 
 
 def young_modulus(x, e_0, e_min, p=3):
-  print("...young_modulus")
+  #print("...young_modulus")
   return e_min + x ** p * (e_0 - e_min)
 
 
@@ -303,7 +301,7 @@ def compliance(x_phys, u, ke, *, penal=3, e_min=1e-9, e_0=1):
   # https://colab.research.google.com/drive/1PE-otq5hAMMi_q9dC6DkRvf2xzVhWVQ4
 
   # index map
-  print("...compliance")
+  #print("...compliance")
   nelz, nely, nelx = x_phys.shape
   elz, ely, elx = np.meshgrid(range(nelz), range(nely), range(nelx))  # x, y, z coords
   elz, ely, elx = elz.reshape(-1, 1), ely.reshape(-1, 1), elx.reshape(-1, 1)
@@ -419,7 +417,7 @@ def calculate_forces(x_phys, args):
 
 
 def objective(x, ke, args, volume_contraint=False, cone_filter=True):
-  print("...objective")
+  #print("...objective")
   """Objective function (compliance) for topology optimization."""
   kwargs = dict(penal=args['penal'], e_min=args['young_min'], e_0=args['young'])
 #  x_phys = physical_density(x, args, volume_contraint=volume_contraint, cone_filter=cone_filter)

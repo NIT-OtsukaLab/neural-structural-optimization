@@ -52,6 +52,9 @@ problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64_0.4']
 max_iterations = 100
 # %time ds = train_all(problem, max_iterations)
 
+print(ds.design.ffill)
+print(ds.design.sel)
+
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
 plt.ylim(230, 330)
 plt.ylabel('Compliance (loss)')
@@ -66,6 +69,11 @@ ds.design.ffill('step').sel(step=100).plot.imshow(
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
+ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
+    row='model', col='step', x='x', y='y', size=4, aspect=0.3,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.subplots_adjust(wspace=0.1, hspace=0.05)
+plt.suptitle(problem.name, y=1.02)
 
 
 

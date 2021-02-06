@@ -79,7 +79,7 @@ train_adam = functools.partial(
 
 
 def _set_variables(variables, x):
-  print("..._set_variables")
+  #print("..._set_variables")
   shapes = [v.shape.as_list() for v in variables]
   values = tf.split(x, [np.prod(s) for s in shapes])
   for var, value in zip(variables, values):

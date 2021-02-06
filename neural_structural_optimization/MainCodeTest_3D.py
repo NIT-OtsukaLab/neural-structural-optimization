@@ -19,9 +19,9 @@ from PIL import Image
 import time
 import seaborn
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import xarray
 import pandas as pd
+from mpl_toolkits.mplot3d import Axes3D
 
 from neural_structural_optimization import pipeline_utils
 from neural_structural_optimization import problems
@@ -52,7 +52,7 @@ e_time = time.time() - start
 print ("e_time:{0}".format(e_time) + "[s]")
 
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
-plt.ylim(230, 330)
+plt.ylim(0, 330)    #(230, 330)-original
 plt.ylabel('Compliance (loss)')
 plt.xlabel('Optimization step')
 seaborn.despine()
