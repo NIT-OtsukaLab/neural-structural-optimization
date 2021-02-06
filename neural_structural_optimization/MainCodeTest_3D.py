@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import xarray
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
+import numpy as np    #for check
 
 from neural_structural_optimization import pipeline_utils
 from neural_structural_optimization import problems
@@ -51,14 +52,35 @@ ds = train_all(problem, max_iterations)
 e_time = time.time() - start
 print ("e_time:{0}".format(e_time) + "[s]")
 
+##### Check #####
+#np.set_printoptions(threshold=np.inf)
+#print("ds.loss",ds.loss)
+print("ds.design",type(ds.design),ds.design)
+#print("ds.design.dims",ds.design.dims)
+#################
+
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
-plt.ylim(0, 330)    #(230, 330)-original
+plt.ylim(230, 330)
 plt.ylabel('Compliance (loss)')
 plt.xlabel('Optimization step')
 seaborn.despine()
 
-ds.design.ffill('step').sel(step=100).plot.imshow(
+
+
+
+
+ds.design.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
     col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.suptitle(problem.name, y=1.02)
+
+ds.design.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
+    col='model', x='y', y='z', size=2, aspect=2.5, col_wrap=2,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.suptitle(problem.name, y=1.02)
+
+ds.design.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
+    col='model', x='x', y='z', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
@@ -68,3 +90,4 @@ ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
 plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)
 # -
+
