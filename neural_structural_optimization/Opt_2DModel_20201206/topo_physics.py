@@ -154,6 +154,7 @@ def get_k(stiffness, ke):
   # make the stiffness matrix
   kd = stiffness.T.reshape(nelx*nely, 1, 1)
   value_list = (kd * np.tile(ke, kd.shape)).flatten()
+  print(value_list,value_list.size,value_list.shape)
   return value_list, y_list, x_list
 
 

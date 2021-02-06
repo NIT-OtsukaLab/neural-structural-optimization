@@ -66,7 +66,7 @@ autograd.extend.defvjp(gaussian_filter, _gaussian_filter_vjp)
 # Cone filter
 def _cone_filter_matrix(nelx, nely, radius, mask):
   x, y = np.meshgrid(np.arange(nelx), np.arange(nely), indexing='ij')
-  print("x,y=",x,",",y)
+  #print("x,y=",x,",",y)
   rows = []
   cols = []
   values = []
@@ -90,19 +90,19 @@ def _cone_filter_matrix(nelx, nely, radius, mask):
       cols.append(column[valid])
       values.append(value[valid])
 
-  print("row.shape=",row.shape)
-  print("row=",row)
+  #print("row.shape=",row.shape)
+  #print("row=",row)
 
-  print("cols.shape=",column.shape)
-  print("cols=",column)
+  #print("cols.shape=",column.shape)
+  #print("cols=",column)
 
   data = np.concatenate(values)
   i = np.concatenate(rows)
   j = np.concatenate(cols)
 
-  print("data=",data)
-  print("i,j=",i,j)
-  print(scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely,) * 2))
+  #print("data=",data)
+  #print("i,j=",i,j)
+  #print(scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely,) * 2))
 
   return scipy.sparse.coo_matrix((data, (i, j)), (nelx * nely,) * 2)
 
@@ -114,9 +114,9 @@ def normalized_cone_filter_matrix(nx, ny, radius, mask):
   weights = 1 / raw_filters.sum(axis=0).squeeze()
   diag_weights = scipy.sparse.spdiags(weights, 0, nx*ny, nx*ny)
 
-  print("raw_filters=",raw_filters)
-  print("weights=",weights)
-  print("diag_weights=",diag_weights)
+  #print("raw_filters=",raw_filters)
+  #print("weights=",weights)
+  #print("diag_weights=",diag_weights)
 
   return (diag_weights @ raw_filters).tocsr()
 
@@ -163,7 +163,7 @@ def _get_solver(a_entries, a_indices, size, sym_pos):
   # the backwawrds pass.
   a = scipy.sparse.coo_matrix((a_entries, a_indices), shape=(size,)*2).tocsc()
 　if sym_pos and HAS_CHOLMOD:
-    print(sym_pos)
+    #print(sym_pos)
     return sksparse.cholmod.cholesky(a).solve_A
   else:
     # could also use scikits.umfpack.splu

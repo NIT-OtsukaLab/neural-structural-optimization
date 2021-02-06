@@ -223,7 +223,7 @@ def solve_coo(a_entries, a_indices, b, sym_pos=False):
     1d numpy array corresponding to the solution of a*x=b.
   """
 
-  solver = _get_solver(a_entries, a_indices, b.size, sym_pos)
+  solver = _get_solver(a_entries, a_indices, b.size, sym_pos=False)
   return solver(b)
 
 

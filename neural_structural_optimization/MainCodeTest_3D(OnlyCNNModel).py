@@ -42,7 +42,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     return xarray.concat([ds_cnn], dim=dims)
 
 """MBB beam with a larger grid"""
-problem = problems.PROBLEMS_BY_NAME['mbb_beam_8x8x8_0.4']
+problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64x64_0.4']
 max_iterations = 100
 
 # # #%time ds = train_all(problem, max_iterations) %timeが機能しないため,以下の処理に変更
@@ -57,13 +57,16 @@ plt.ylabel('Compliance (loss)')
 plt.xlabel('Optimization step')
 seaborn.despine()
 
+# the pixel-lbfgs does not run for the full 100 steps (it terminates
+# early due to reaching a local minima), so use fill() to forward fill
+# to the last valid design.
 ds.design.ffill('step').sel(step=100).plot.imshow(
-    col='model', x='x', y='y', z='z', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
-    row='model', col='step', x='x', y='y', z='z', size=2, aspect=0.5,
+    row='model', col='step', x='x', y='y', size=2, aspect=0.5,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)

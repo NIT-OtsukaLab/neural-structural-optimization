@@ -72,7 +72,7 @@ def default_args():
           'name': 'truss'}
 
 
-def physical_density(x, args, volume_contraint=False, cone_filter=True):
+def physical_density(x, args, volume_contraint=False, cone_filter=False):   #cone_filter=Truee
   print("...physical_density")
   shape = (args['nelz'], args['nely'], args['nelx'])
   assert x.shape == shape or x.ndim == 1
@@ -125,9 +125,6 @@ def get_stiffness_matrix(young, poisson):	#20201219 K.Taniguchi
     0,48,0,0,0,-24,0,-12,0,-12,48,0,24,0,24,0,-12,12,48,0,-24,0,12,-12,-12,
     48,0,0,0,-24,-24,48,0,24,0,0,48,24,0,0,48,0,0,48,0,48])))
 
-  return ke
-
-  """
   n = int(np.sqrt(len(ke)*2))
   matrix = np.tri(n)
   cm = scipy.sparse.coo_matrix(matrix)
@@ -136,9 +133,10 @@ def get_stiffness_matrix(young, poisson):	#20201219 K.Taniguchi
   ke0 = ke0 + det
   diag = np.diag(ke0)
   diag0 = np.diag(diag)/2
+  ke = ke0 - diag0
 
-  return ke0 - diag0
-  """
+  return ke
+
 
 
   """
@@ -162,9 +160,6 @@ def _get_dof_indices(freedofs, fixdofs, k_xlist, k_ylist):
   index_map = autograd_lib.inverse_permutation(
       np.concatenate([freedofs, fixdofs]))
   keep = np.isin(k_xlist, freedofs) & np.isin(k_ylist, freedofs)
-  print("freedofs",freedofs,freedofs.size)
-  print("k_xlist",k_xlist,k_xlist.size)
-  print("k_ylist",k_ylist,k_ylist.size)
   i = index_map[k_ylist][keep]
   j = index_map[k_xlist][keep]
 
@@ -181,10 +176,6 @@ def displace(x_phys, ke, forces, freedofs, fixdofs, *,
   index_map, keep, indices = _get_dof_indices(
       freedofs, fixdofs, k_ylist, k_xlist
   )
-
-  print("k_entries",k_entries.size)
-  print("keep",keep.size)
-
   u_nonzero = autograd_lib.solve_coo(k_entries[keep], indices, forces[freedofs],
                                      sym_pos=True)
   u_values = np.concatenate([u_nonzero, np.zeros(len(fixdofs))])
@@ -196,6 +187,7 @@ def get_k(stiffness, ke):
 ### Revised Program Start ###
   print("...get_k")
   # Constructs a sparse stiffness matrix, k, for use in the displace function.
+  """
   nelz, nely, nelx = stiffness.shape
   nEl = nelx*nely*nelz
   nDof = (nelx+1)*(nely+1)*(nelz+1)*3
@@ -251,19 +243,19 @@ def get_k(stiffness, ke):
   kd = np.reshape(ke*stiffness,[ke.size*nEl,1]).squeeze(-1)
 
   #size compensation
-  if math.ceil(ik.size/nDof) >= 0:
-      a = math.ceil(ik.size/nDof)
+  if max(max(ik),max(jk))>nDof:
+      a = max(max(ik),max(jk))
   else:
-      a = 1
-
-  value_list = scipy.sparse.coo_matrix((kd,(ik,jk)),shape=(a*nDof,a*nDof)).toarray().flatten()
+      a = nDof
+  print("size compensation a=",a)
+  value_list = scipy.sparse.coo_matrix((kd,(ik,jk)),shape=([a,a])).toarray().flatten()
   #value_list = scipy.sparse.coo_matrix((kd,(ik,jk)),shape=(nDof,nDof)).toarray().flatten()
   #value_list = (kd * np.tile(ke, kd.shape)).flatten()
-
+  print(value_list)
+  print("'get_k' is done")
   return value_list, y_list, x_list
 
-"""
-  print("get_k")
+  """
   # Constructs a sparse stiffness matrix, k, for use in the displace function.
   nelz, nely, nelx = stiffness.shape
 
@@ -281,15 +273,24 @@ def get_k(stiffness, ke):
   n7 = n3 + (nelx+1)*(nely+1)
   n8 = n4 + (nelx+1)*(nely+1)
 
-  edof = np.array([2*n1, 2*n1+1, 2*n2, 2*n2+1, 2*n3, 2*n3+1, 2*n4, 2*n4+1,
-                   2*n5, 2*n5+1, 2*n6, 2*n6+1, 2*n7, 2*n7+1, 2*n8, 2*n8+1,])
+  #edof = np.array([3*n1, 3*n1+1, 3*n2, 3*n2+1, 3*n3, 3*n3+1, 3*n4, 3*n4+1,
+  #                 3*n5, 3*n5+1, 3*n6, 3*n6+1, 3*n7, 3*n7+1, 3*n8, 3*n8+1,])
+
+  edof = np.array([3*n1, 3*n1+1, 3*n1+2, 3*n2, 3*n2+1, 3*n2+2, 3*n3, 3*n3+1, 3*n3+2,
+                   3*n4, 3*n4+1, 3*n4+2, 3*n5, 3*n5+1, 3*n5+2, 3*n6, 3*n6+1, 3*n6+2,
+                   3*n7, 3*n7+1, 3*n7+2, 3*n8, 3*n8+1, 3*n8+2])
 
   edof = edof.T[0]
 
 #Num. of row/col in Element stiffness matrix is 24.
   x_list = np.repeat(edof, 24)  # flat list pointer of each node in an element
   y_list = np.tile(edof, 24).flatten()  # flat list pointer of each node in elem
-"""
+
+  kd = stiffness.T.reshape(nelx*nely*nelz, 1, 1)
+  value_list = (kd*np.tile(ke, kd.shape)).flatten()
+
+  return value_list, y_list, x_list
+
 
 def young_modulus(x, e_0, e_min, p=3):
   print("...young_modulus")
@@ -304,7 +305,27 @@ def compliance(x_phys, u, ke, *, penal=3, e_min=1e-9, e_0=1):
   # index map
   print("...compliance")
   nelz, nely, nelx = x_phys.shape
+  elz, ely, elx = np.meshgrid(range(nelz), range(nely), range(nelx))  # x, y, z coords
+  elz, ely, elx = elz.reshape(-1, 1), ely.reshape(-1, 1), elx.reshape(-1, 1)
 
+  n1 = (nely+1)*(elx+0) + (ely+0) + (nelx+1)*(nely+1)*elz
+  n2 = (nely+1)*(elx+1) + (ely+0) + (nelx+1)*(nely+1)*elz
+  n3 = (nely+1)*(elx+1) + (ely+1) + (nelx+1)*(nely+1)*elz
+  n4 = (nely+1)*(elx+0) + (ely+1) + (nelx+1)*(nely+1)*elz
+
+  n5 = n1 + (nelx+1)*(nely+1)
+  n6 = n2 + (nelx+1)*(nely+1)
+  n7 = n3 + (nelx+1)*(nely+1)
+  n8 = n4 + (nelx+1)*(nely+1)
+
+  #edof = np.array([3*n1, 3*n1+1, 3*n2, 3*n2+1, 3*n3, 3*n3+1, 3*n4, 3*n4+1,
+  #                 3*n5, 3*n5+1, 3*n6, 3*n6+1, 3*n7, 3*n7+1, 3*n8, 3*n8+1,])
+
+  all_ixs = np.array([3*n1, 3*n1+1, 3*n1+2, 3*n2, 3*n2+1, 3*n2+2, 3*n3, 3*n3+1, 3*n3+2,
+                   3*n4, 3*n4+1, 3*n4+2, 3*n5, 3*n5+1, 3*n5+2, 3*n6, 3*n6+1, 3*n6+2,
+                   3*n7, 3*n7+1, 3*n7+2, 3*n8, 3*n8+1, 3*n8+2])
+  """
+  nEl = nelx*nely*nelz
   ANodes = np.array(np.meshgrid(range((1+nelx)*(1+nely)*(1+nelz))))
   nodeNrs = ANodes.reshape(1+nelz, 1+nely, 1+nelx)
   cVec = (3*nodeNrs[:nelz,:nely,:nelx]+4).reshape(nEl,-1)
@@ -313,6 +334,7 @@ def compliance(x_phys, u, ke, *, penal=3, e_min=1e-9, e_0=1):
                   [-3, -2, -1], L2+np.array([0, 1, 2]),
                   L3+np.array([0, 1, 2, -3, -2, -1]),
                   L4+np.array([-3, -2, -1])])
+  """
 
   # select from u matrix
   u_selected = u[all_ixs]
@@ -320,6 +342,7 @@ def compliance(x_phys, u, ke, *, penal=3, e_min=1e-9, e_0=1):
   # compute x^penal * U.T @ ke @ U in a vectorized way
   ke_u = np.einsum('ij,jkl->ikl', ke, u_selected)
   ce = np.einsum('ijk,ijk->jk', u_selected, ke_u)
+  x_phys = x_phys.reshape(-1,1)
   C = young_modulus(x_phys, e_0, e_min, p=penal) * ce.T
   return np.sum(C)
 

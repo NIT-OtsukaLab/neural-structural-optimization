@@ -58,14 +58,13 @@ plt.xlabel('Optimization step')
 seaborn.despine()
 
 ds.design.ffill('step').sel(step=100).plot.imshow(
-    col='model', x='x', y='y', z='z', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
-    row='model', col='step', x='x', y='y', z='z', size=2, aspect=0.5,
+    row='model', col='step', x='x', y='y', size=2, aspect=0.5,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)
-
 # -
