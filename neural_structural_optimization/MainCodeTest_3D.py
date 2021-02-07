@@ -46,10 +46,10 @@ problem = problems.PROBLEMS_BY_NAME['mbb_beam_96x32x8_0.5']
 max_iterations = 100
 
 # %time ds = train_all(problem, max_iterations) #%timeが機能しないため,以下の処理に変更
-#start = time.time()
-#ds = train_all(problem, max_iterations)
-#e_time = time.time() - start
-#print ("e_time:{0}".format(e_time) + "[s]")
+start = time.time()
+ds = train_all(problem, max_iterations)
+e_time = time.time() - start
+print ("e_time:{0}".format(e_time) + "[s]")
 
 #Steps - Compliance
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)

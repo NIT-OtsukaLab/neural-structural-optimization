@@ -476,8 +476,7 @@ PROBLEMS_BY_CATEGORY = {
         mbb_beam(384, 128, 8, density=0.3),
         mbb_beam(192, 32, 8, density=0.5),
         mbb_beam(384, 64, 8, density=0.4),
-        mbb_beam(192, 64, 8, density=0.4),    #For min elem No. check
-        mbb_beam(8,8,8,density=0.4),    #Min Prob.
+        mbb_beam(8,8,8,density=0.4),
     ],
     'cantilever_beam_full': [
         cantilever_beam_full(96, 32, 8, density=0.4),
