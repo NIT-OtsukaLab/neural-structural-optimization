@@ -42,7 +42,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     return xarray.concat([ds_cnn], dim=dims)
 
 """MBB beam with a larger grid"""
-problem = problems.PROBLEMS_BY_NAME['mbb_beam_96x32x8_0.4']
+problem = problems.PROBLEMS_BY_NAME['mbb_beam_96x32x8_0.5']
 max_iterations = 100
 
 # %time ds = train_all(problem, max_iterations) #%timeが機能しないため,以下の処理に変更
@@ -65,14 +65,14 @@ x_axis = ds.design.x
 y_axis = ds.design.y
 z_axis = ds.design.z
 
-design_xy = xarray.DataArray(dims=['model','step','x','y'], 
-                            coords={'model':model,'step':step,'x':x_axis, 'y':y_axis}, 
+design_xy = xarray.DataArray(dims=['model','step','x','y'],
+                            coords={'model':model,'step':step,'x':x_axis, 'y':y_axis},
                             name='xy-plane')
-design_yz = xarray.DataArray(dims=['model','step','y','z'], 
-                            coords={'model':model,'step':step,'y':y_axis, 'z':z_axis}, 
+design_yz = xarray.DataArray(dims=['model','step','y','z'],
+                            coords={'model':model,'step':step,'y':y_axis, 'z':z_axis},
                             name='yz-plane')
-design_zx = xarray.DataArray(dims=['model','step','x','z'], 
-                            coords={'model':model,'step':step,'x':x_axis, 'z':z_axis}, 
+design_zx = xarray.DataArray(dims=['model','step','x','z'],
+                            coords={'model':model,'step':step,'x':x_axis, 'z':z_axis},
                             name='zx-plane')
 
 design_xy.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
@@ -104,4 +104,3 @@ design_zx.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
 plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)
 # -
-
