@@ -42,7 +42,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     return xarray.concat([ds_cnn], dim=dims)
 
 """MBB beam with a larger grid"""
-problem = problems.PROBLEMS_BY_NAME['mbb_beam_8x8x8_0.5']
+problem = problems.PROBLEMS_BY_NAME['mbb_beam_32x32x8_0.5']
 max_iterations = 100
 
 # #%time ds = train_all(problem, max_iterations) #%timeが機能しないため,以下の処理に変更
@@ -131,14 +131,14 @@ design_zx.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
 plt.suptitle(problem.name, y=1.02)
 
 #Steps - Models
-design_xy.sel(step=[0, 1, 2, 5, 10, 20, 27]).plot.imshow(
-    row='model', col='step', x='x', y='y', size=2, aspect=0.5,
+design_xy0.sel(step=[0, 1, 2, 5, 10, 20, 50, 66]).plot.imshow(
+    row='model', col='step', x='x', y='y', size=2, aspect=1,
     yincrease=False, add_colorbar=False, cmap='Greys')
-design_yz.sel(step=[0, 1, 2, 5, 10, 20, 27]).plot.imshow(
-    row='model', col='step', x='y', y='z', size=2, aspect=0.5,
+design_yz.sel(step=[0, 1, 2, 5, 10, 20, 50, 66]).plot.imshow(
+    row='model', col='step', x='y', y='z', size=2, aspect=1,
     yincrease=False, add_colorbar=False, cmap='Greys')
-design_zx.sel(step=[0, 1, 2, 5, 10, 20, 27]).plot.imshow(
-    row='model', col='step', x='x', y='z', size=2, aspect=0.5,
+design_zx.sel(step=[0, 1, 2, 5, 10, 20, 50, 66]).plot.imshow(
+    row='model', col='step', x='x', y='z', size=2, aspect=1,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)

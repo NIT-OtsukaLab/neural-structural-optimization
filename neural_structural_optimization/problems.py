@@ -78,6 +78,19 @@ class Problem:
         self.normals[-1, :, :, X].all() and not self.normals[-1, :, :, Y].all() and not self.normals[-1, :, :, Y].all()
     )
 
+def mbbbeam_Test(width=60, height=20, depth=20, density=0.5):
+  """Textbook beam example."""
+  normals = np.zeros((width + 1, height + 1, depth + 1, 3))
+  normals[-1, -1, 0:1, Y] = 1
+  normals[-1, -1, 0:1, Z] = 1
+  normals[0, :, 0:1, X] = 1
+  normals[0, :, 0:1, Z] = 1
+
+  forces = np.zeros((width + 1, height + 1, depth +1, 3))
+  forces[0, 0, 0:1, Y] = -1
+
+  return Problem(normals, forces, density)
+
 #2020-12-07 K.Taniguchi
 def mbb_beam(width=60, height=20, depth=20, density=0.5):
   """Textbook beam example."""
@@ -470,6 +483,13 @@ def multistory_building(width=32, height=32, depth=32, density=0.3, interval=16)
 # pylint: disable=line-too-long
 PROBLEMS_BY_CATEGORY = {
     # idealized beam and cantilevers
+    'mbbbeam_Test': [
+        mbbbeam_Test(8,8,8,density=0.5),
+        mbbbeam_Test(16,16,8,density=0.5),
+        mbbbeam_Test(32,32,8,density=0.5),
+        mbbbeam_Test(64,32,8,density=0.5),
+        mbbbeam_Test(192,32,8,density=0.5),
+    ],
     'mbb_beam': [
         mbb_beam(96, 32, 8, density=0.5),
         mbb_beam(192, 64, 8, density=0.4),
@@ -479,7 +499,7 @@ PROBLEMS_BY_CATEGORY = {
         mbb_beam(8,8,8,density=0.5),
         mbb_beam(16,16,8,density=0.5),
         mbb_beam(32,32,8,density=0.5),
-        mbb_beam(64,64,8,density=0.5),
+        mbb_beam(64,32,8,density=0.5),
     ],
     'cantilever_beam_full': [
         cantilever_beam_full(96, 32, 8, density=0.4),

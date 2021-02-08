@@ -63,70 +63,22 @@ plt.xlabel('Optimization step')
 seaborn.despine()
 
 #Three-sided view
-design_xy0 = ds.design.sel(z=ds.design.z[0])
-design_xy1 = ds.design.sel(z=ds.design.z[1])
-design_xy2 = ds.design.sel(z=ds.design.z[2])
-design_xy3 = ds.design.sel(z=ds.design.z[3])
-design_xy4 = ds.design.sel(z=ds.design.z[4])
-design_xy5 = ds.design.sel(z=ds.design.z[5])
-design_xy6 = ds.design.sel(z=ds.design.z[6])
-design_xy7 = ds.design.sel(z=ds.design.z[7])
-#design_xy8 = ds.design.sel(z=ds.design.z[8])
+design_xy = ds.design.sel(z=ds.design.z[0])
 design_yz = ds.design.sel(x=ds.design.x[0])
 design_zx = ds.design.sel(y=ds.design.y[-1])
 
-design_xy0.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
+design_xy.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
     col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
-design_xy1.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
-    yincrease=False, add_colorbar=False, cmap='Greys')
-plt.suptitle(problem.name, y=1.02)
-
-design_xy2.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
-    yincrease=False, add_colorbar=False, cmap='Greys')
-plt.suptitle(problem.name, y=1.02)
-
-design_xy3.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
-    yincrease=False, add_colorbar=False, cmap='Greys')
-plt.suptitle(problem.name, y=1.02)
-
-design_xy4.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
-    yincrease=False, add_colorbar=False, cmap='Greys')
-plt.suptitle(problem.name, y=1.02)
-
-design_xy5.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
-    yincrease=False, add_colorbar=False, cmap='Greys')
-plt.suptitle(problem.name, y=1.02)
-
-design_xy6.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
-    yincrease=False, add_colorbar=False, cmap='Greys')
-plt.suptitle(problem.name, y=1.02)
-
-design_xy7.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
-    yincrease=False, add_colorbar=False, cmap='Greys')
-plt.suptitle(problem.name, y=1.02)
-"""
-design_xy8.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
-    yincrease=False, add_colorbar=False, cmap='Greys')
-plt.suptitle(problem.name, y=1.02)
-"""
 design_yz.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='y', y='z', size=2, aspect=1, col_wrap=2,
+    col='model', x='y', y='z', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_zx.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='z', size=2, aspect=1, col_wrap=2,
+    col='model', x='x', y='z', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
