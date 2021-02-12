@@ -49,7 +49,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     return xarray.concat([ds_cnn], dim=dims)
 
 #"MBB beam with a larger grid"
-problem = problems.PROBLEMS_BY_NAME['mbb_beam_8x8_0.5']
+problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x32_0.5']
 max_iterations = 100
 
 start = time.time()
@@ -73,8 +73,5 @@ ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
     row='model', col='step', x='x', y='y', size=2, aspect=1,
     yincrease=False, add_colorbar=False, cmap='Greys')
 
-
-
-# -
 
 

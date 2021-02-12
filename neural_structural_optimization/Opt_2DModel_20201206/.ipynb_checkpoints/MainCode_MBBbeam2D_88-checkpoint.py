@@ -55,8 +55,7 @@ max_iterations = 100
 start = time.time()
 ds = train_all(problem, max_iterations)
 e_time = time.time() - start
-print ("e_time:{0}".format(e_time) + "[s]")
-# #%time ds = train_all(problem, max_iterations)
+# %time ds = train_all(problem, max_iterations)
 
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
 plt.ylim(230, 330)
