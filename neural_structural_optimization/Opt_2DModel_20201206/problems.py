@@ -441,6 +441,7 @@ PROBLEMS_BY_CATEGORY = {
         mbb_beam(8, 8, density=0.5),
         mbb_beam(16, 16, density=0.5),
         mbb_beam(32, 32, density=0.5),
+        mbb_beam(64, 32, density=0.5),
         mbb_beam(96, 32, density=0.5),
         mbb_beam(192, 64, density=0.4),
         mbb_beam(384, 128, density=0.3),
