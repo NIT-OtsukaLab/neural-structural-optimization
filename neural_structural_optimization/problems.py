@@ -81,13 +81,13 @@ class Problem:
 def mbbbeam_Test(width=60, height=20, depth=20, density=0.5):
   """Textbook beam example."""
   normals = np.zeros((width + 1, height + 1, depth + 1, 3))
-  normals[-1, -1, 0:1, Y] = 1
-  normals[-1, -1, 0:1, Z] = 1
-  normals[0, :, 0:1, X] = 1
-  normals[0, :, 0:1, Z] = 1
+  normals[-1, -1, :, Y] = 1
+  normals[-1, -1, :, Z] = 1
+  normals[0, -1, :, Y] = 1
+  normals[0, -1, :, Z] = 1
 
   forces = np.zeros((width + 1, height + 1, depth +1, 3))
-  forces[0, 0, 0:1, Y] = -1
+  forces[(width+1)//2, 0, :, Y] = -1
 
   return Problem(normals, forces, density)
 
@@ -190,7 +190,7 @@ def ground_structure(width=32, height=32, depth=32, density=0.5, force_position=
   normals[0, -1, :, :] = 1
 
   forces = np.zeros((width + 1, height + 1, depth + 1, 3))
-  forces[round(force_position*height), -1, round(depth/2), Y] = -1
+  forces[round(force_position*height), -1, round(depth/2), Y] = -10
 
   return Problem(normals, forces, density)
 
@@ -346,7 +346,7 @@ def thin_support_bridge(
   normals[-1, :, :, X] = 1
 
   forces = np.zeros((width + 1, height + 1, depth + 1, 3))
-  forces[:, 0, round(depth/2), Y] = -1 / width
+  forces[:, 0, :, Y] = -1 / width
 
   mask = np.ones((width, height, depth))
   mask[-round(width*(1-design_width)):, :round(height*(1-design_width)), :] = 0
@@ -476,7 +476,7 @@ def multistory_building(width=32, height=32, depth=32, density=0.3, interval=16)
   normals[-1, :, :, X] = 1
 
   forces = np.zeros((width + 1, height + 1, depth + 1, 3))
-  forces[:, ::interval, :, Y] = -1 / width
+  forces[:, ::interval, :, Y] = -10 / width
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
@@ -519,6 +519,7 @@ PROBLEMS_BY_CATEGORY = {
         pure_bending_moment(128, 256, 8, density=0.1),
     ],
     'ground_structure': [
+        ground_structure(32, 32, 8, density=0.12),
         ground_structure(64, 64, 8, density=0.12),
         ground_structure(128, 128, 8, density=0.1),
         ground_structure(256, 256, 8, density=0.07),

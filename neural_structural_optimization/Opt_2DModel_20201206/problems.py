@@ -438,7 +438,9 @@ def multistory_building(width=32, height=32, density=0.3, interval=16):
 PROBLEMS_BY_CATEGORY = {
     # idealized beam and cantilevers
     'mbb_beam': [
-        mbb_beam(8,8,density=0.4),
+        mbb_beam(8, 8, density=0.5),
+        mbb_beam(16, 16, density=0.5),
+        mbb_beam(32, 32, density=0.5),
         mbb_beam(96, 32, density=0.5),
         mbb_beam(192, 64, density=0.4),
         mbb_beam(384, 128, density=0.3),
@@ -463,6 +465,7 @@ PROBLEMS_BY_CATEGORY = {
         pure_bending_moment(128, 256, density=0.1),
     ],
     'ground_structure': [
+        ground_structure(32, 32, density=0.12),
         ground_structure(64, 64, density=0.12),
         ground_structure(128, 128, density=0.1),
         ground_structure(256, 256, density=0.07),

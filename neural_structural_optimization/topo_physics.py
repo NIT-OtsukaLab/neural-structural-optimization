@@ -232,7 +232,7 @@ def get_k(stiffness, ke):
   x_list = jk
   y_list = ik
 
-  ke = ke.reshape([-1,1])
+  ke = ke.reshape([-1,1])    #このときkeはget_stiffness_matrixにおいてke= ~で定義されたままの値
   stiffness = stiffness.reshape([1,-1])
 
   # make the stiffness matrix

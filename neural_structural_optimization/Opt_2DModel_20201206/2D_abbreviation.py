@@ -47,30 +47,112 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     dims = pd.Index(['cnn-lbfgs', 'mma', 'oc', 'pixel-lbfgs'], name='model')
     return xarray.concat([ds_cnn, ds_mma, ds_oc, ds_pix], dim=dims)
 
-#"MBB beam with a larger grid"
-problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x64_0.4']
+#"MBB beam"
+problem = problems.PROBLEMS_BY_NAME['mbb_beam_8x8_0.5']
 max_iterations = 100
 # %time ds = train_all(problem, max_iterations)
 
-print(ds.design.ffill)
-print(ds.design.sel)
-
 ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
-plt.ylim(230, 330)
+plt.ylim(0, 1000)
 plt.ylabel('Compliance (loss)')
 plt.xlabel('Optimization step')
 seaborn.despine()
 
-# the pixel-lbfgs does not run for the full 100 steps (it terminates
-# early due to reaching a local minima), so use fill() to forward fill
-# to the last valid design.
 ds.design.ffill('step').sel(step=100).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
-    row='model', col='step', x='x', y='y', size=4, aspect=0.3,
+    row='model', col='step', x='x', y='y', size=3, aspect=1,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.subplots_adjust(wspace=0.1, hspace=0.05)
+plt.suptitle(problem.name, y=1.02)
+
+problem = problems.PROBLEMS_BY_NAME['mbb_beam_16x16_0.5']
+max_iterations = 100
+# %time ds = train_all(problem, max_iterations)
+
+ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
+plt.ylim(0, 1000)
+plt.ylabel('Compliance (loss)')
+plt.xlabel('Optimization step')
+seaborn.despine()
+
+ds.design.ffill('step').sel(step=100).plot.imshow(
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.suptitle(problem.name, y=1.02)
+
+ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
+    row='model', col='step', x='x', y='y', size=3, aspect=1,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.subplots_adjust(wspace=0.1, hspace=0.05)
+plt.suptitle(problem.name, y=1.02)
+
+problem = problems.PROBLEMS_BY_NAME['mbb_beam_32x32_0.5']
+max_iterations = 100
+# %time ds = train_all(problem, max_iterations)
+
+ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
+plt.ylim(0, 1000)
+plt.ylabel('Compliance (loss)')
+plt.xlabel('Optimization step')
+seaborn.despine()
+
+ds.design.ffill('step').sel(step=100).plot.imshow(
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.suptitle(problem.name, y=1.02)
+
+ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
+    row='model', col='step', x='x', y='y', size=3, aspect=1,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.subplots_adjust(wspace=0.1, hspace=0.05)
+plt.suptitle(problem.name, y=1.02)
+
+#"Ground Structure"
+problem = problems.PROBLEMS_BY_NAME['ground_structure_32x32_0.12']
+max_iterations = 100
+# %time ds = train_all(problem, max_iterations)
+
+ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
+plt.ylim(0, 1000)
+plt.ylabel('Compliance (loss)')
+plt.xlabel('Optimization step')
+seaborn.despine()
+
+ds.design.ffill('step').sel(step=100).plot.imshow(
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.suptitle(problem.name, y=1.02)
+
+ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
+    row='model', col='step', x='x', y='y', size=3, aspect=1,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.subplots_adjust(wspace=0.1, hspace=0.05)
+plt.suptitle(problem.name, y=1.02)
+
+
+#"Multistory Building"
+problem = problems.PROBLEMS_BY_NAME['multistory_building_32x64_0.5']
+max_iterations = 100
+# %time ds = train_all(problem, max_iterations)
+
+ds.loss.transpose().to_pandas().cummin().loc[:200].plot(linewidth=2)
+plt.ylim(0, 1000)
+plt.ylabel('Compliance (loss)')
+plt.xlabel('Optimization step')
+seaborn.despine()
+
+ds.design.ffill('step').sel(step=100).plot.imshow(
+    col='model', x='x', y='y', size=3, aspect=0.5, col_wrap=2,
+    yincrease=False, add_colorbar=False, cmap='Greys')
+plt.suptitle(problem.name, y=1.02)
+
+
+ds.design.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
+    row='model', col='step', x='x', y='y', size=4, aspect=0.5,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)

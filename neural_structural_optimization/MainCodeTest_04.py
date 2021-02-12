@@ -76,42 +76,42 @@ design_yz = ds.design.sel(x=ds.design.x[0])
 design_zx = ds.design.sel(y=ds.design.y[-1])
 
 design_xy0.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy1.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy2.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy3.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy4.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy5.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy6.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy7.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 """
@@ -121,24 +121,24 @@ design_xy8.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
 plt.suptitle(problem.name, y=1.02)
 """
 design_yz.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='y', y='z', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='y', y='z', size=2, aspect=2, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_zx.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='z', size=2, aspect=2.5, col_wrap=2,
+    col='model', x='x', y='z', size=2, aspect=8, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 #Steps - Models
-design_xy.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
-    row='model', col='step', x='x', y='y', size=2, aspect=0.5,
+design_xy0.sel(step=[0, 1, 2, 5, 10, 20, 50, max_step]).plot.imshow(
+    row='model', col='step', x='x', y='y', size=2, aspect=1,
     yincrease=False, add_colorbar=False, cmap='Greys')
-design_yz.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
-    row='model', col='step', x='y', y='z', size=2, aspect=0.5,
+design_yz.sel(step=[0, 1, 2, 5, 10, 20, 50, max_step]).plot.imshow(
+    row='model', col='step', x='y', y='z', size=2, aspect=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
-design_zx.sel(step=[0, 1, 2, 5, 10, 20, 50, 100]).plot.imshow(
-    row='model', col='step', x='x', y='z', size=2, aspect=0.5,
+design_zx.sel(step=[0, 1, 2, 5, 10, 20, 50, max_step]).plot.imshow(
+    row='model', col='step', x='x', y='z', size=2, aspect=4,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)

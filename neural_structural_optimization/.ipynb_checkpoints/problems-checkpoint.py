@@ -78,6 +78,19 @@ class Problem:
         self.normals[-1, :, :, X].all() and not self.normals[-1, :, :, Y].all() and not self.normals[-1, :, :, Y].all()
     )
 
+def mbbbeam_Test(width=60, height=20, depth=20, density=0.5):
+  """Textbook beam example."""
+  normals = np.zeros((width + 1, height + 1, depth + 1, 3))
+  normals[-1, -1, :, Y] = 1
+  normals[-1, -1, :, Z] = 1
+  normals[0, -1, :, Y] = 1
+  normals[0, -1, :, Z] = 1
+
+  forces = np.zeros((width + 1, height + 1, depth +1, 3))
+  forces[(width+1)//2, 0, :, Y] = -1
+
+  return Problem(normals, forces, density)
+
 #2020-12-07 K.Taniguchi
 def mbb_beam(width=60, height=20, depth=20, density=0.5):
   """Textbook beam example."""
@@ -177,7 +190,7 @@ def ground_structure(width=32, height=32, depth=32, density=0.5, force_position=
   normals[0, -1, :, :] = 1
 
   forces = np.zeros((width + 1, height + 1, depth + 1, 3))
-  forces[round(force_position*height), -1, round(depth/2), Y] = -1
+  forces[round(force_position*height), -1, round(depth/2), Y] = -10
 
   return Problem(normals, forces, density)
 
@@ -333,7 +346,7 @@ def thin_support_bridge(
   normals[-1, :, :, X] = 1
 
   forces = np.zeros((width + 1, height + 1, depth + 1, 3))
-  forces[:, 0, round(depth/2), Y] = -1 / width
+  forces[:, 0, :, Y] = -1 / width
 
   mask = np.ones((width, height, depth))
   mask[-round(width*(1-design_width)):, :round(height*(1-design_width)), :] = 0
@@ -463,57 +476,66 @@ def multistory_building(width=32, height=32, depth=32, density=0.3, interval=16)
   normals[-1, :, :, X] = 1
 
   forces = np.zeros((width + 1, height + 1, depth + 1, 3))
-  forces[:, ::interval, :, Y] = -1 / width
+  forces[:, ::interval, :, Y] = -10 / width
   return Problem(normals, forces, density)
 
 #2020-12-07 K.Taniguchi
 # pylint: disable=line-too-long
 PROBLEMS_BY_CATEGORY = {
     # idealized beam and cantilevers
+    'mbbbeam_Test': [
+        mbbbeam_Test(8,8,8,density=0.5),
+        mbbbeam_Test(16,16,8,density=0.5),
+        mbbbeam_Test(32,32,8,density=0.5),
+        mbbbeam_Test(64,32,8,density=0.5),
+        mbbbeam_Test(192,32,8,density=0.5),
+    ],
     'mbb_beam': [
-        mbb_beam(96, 32, 32, density=0.5),
-        mbb_beam(192, 64, 64, density=0.4),
-        mbb_beam(384, 128, 128, density=0.3),
-        mbb_beam(192, 32, 32, density=0.5),
-        mbb_beam(384, 64, 64, density=0.4),
-        mbb_beam(192, 64, 8, density=0.4),    #For min elem No. check
-        mbb_beam(96, 32, 8, density=0.4),    #For min elem No. check
-        mbb_beam(8,8,8,density=0.4),    #Min Prob.
+        mbb_beam(96, 32, 8, density=0.5),
+        mbb_beam(192, 64, 8, density=0.4),
+        mbb_beam(384, 128, 8, density=0.3),
+        mbb_beam(192, 32, 8, density=0.5),
+        mbb_beam(384, 64, 8, density=0.4),
+        mbb_beam(8,8,8,density=0.5),
+        mbb_beam(16,16,8,density=0.5),
+        mbb_beam(32,32,8,density=0.5),
+        mbb_beam(64,32,8,density=0.5),
     ],
     'cantilever_beam_full': [
-        cantilever_beam_full(96, 32, 32, density=0.4),
-        cantilever_beam_full(192, 64, 62, density=0.3),
-        cantilever_beam_full(384, 128, 128, density=0.2),
-        cantilever_beam_full(384, 128, 128, density=0.15),
+        cantilever_beam_full(96, 32, 8, density=0.4),
+        cantilever_beam_full(192, 64, 8, density=0.3),
+        cantilever_beam_full(384, 128, 8, density=0.2),
+        cantilever_beam_full(384, 128, 8, density=0.15),
     ],
     'cantilever_beam_two_point': [
-        cantilever_beam_two_point(64, 48, 48, density=0.4),
-        cantilever_beam_two_point(128, 96, 96, density=0.3),
-        cantilever_beam_two_point(256, 192, 192, density=0.2),
-        cantilever_beam_two_point(256, 192, 192, density=0.15),
+        cantilever_beam_two_point(64, 48, 8, density=0.4),
+        cantilever_beam_two_point(128, 96, 8, density=0.3),
+        cantilever_beam_two_point(256, 192, 8, density=0.2),
+        cantilever_beam_two_point(256, 192, 8, density=0.15),
     ],
     'pure_bending_moment': [
-        pure_bending_moment(32, 64, 64, density=0.15),
-        pure_bending_moment(64, 128, 128, density=0.125),
-        pure_bending_moment(128, 256, 256, density=0.1),
+        pure_bending_moment(32, 64, 8, density=0.15),
+        pure_bending_moment(64, 128, 8, density=0.125),
+        pure_bending_moment(128, 256, 8, density=0.1),
     ],
     'ground_structure': [
-        ground_structure(64, 64, 64, density=0.12),
-        ground_structure(128, 128, 128, density=0.1),
-        ground_structure(256, 256, 256, density=0.07),
-        ground_structure(256, 256, 256, density=0.05),
+        ground_structure(32, 32, 8, density=0.12),
+        ground_structure(64, 64, 8, density=0.12),
+        ground_structure(128, 128, 8, density=0.1),
+        ground_structure(256, 256, 8, density=0.07),
+        ground_structure(256, 256, 8, density=0.05),
     ],
     'michell_centered_both': [
-        michell_centered_both(32, 64, 64, density=0.12),
-        michell_centered_both(64, 128, 128, density=0.12),
-        michell_centered_both(128, 256, 256, density=0.12),
-        michell_centered_both(128, 256, 256, density=0.06),
+        michell_centered_both(32, 64, 8, density=0.12),
+        michell_centered_both(64, 128, 8, density=0.12),
+        michell_centered_both(128, 256, 8, density=0.12),
+        michell_centered_both(128, 256, 8, density=0.06),
     ],
     'michell_centered_below': [
-        michell_centered_below(64, 64, 64, density=0.12),
-        michell_centered_below(128, 128, 128, density=0.12),
-        michell_centered_below(256, 256, 256, density=0.12),
-        michell_centered_below(256, 256, 256, density=0.06),
+        michell_centered_below(64, 64, 8, density=0.12),
+        michell_centered_below(128, 128, 8, density=0.12),
+        michell_centered_below(256, 256, 8, density=0.12),
+        michell_centered_below(256, 256, 8, density=0.06),
     ],
     # simple constrained designs
 	"""
@@ -536,76 +558,76 @@ PROBLEMS_BY_CATEGORY = {
 	"""
     # vertical support structures
     'center_support': [
-        center_support(64, 64, 64, density=0.15),
-        center_support(128, 128, 128, density=0.1),
-        center_support(256, 256, 256, density=0.1),
-        center_support(256, 256, 256, density=0.05),
+        center_support(64, 64, 8, density=0.15),
+        center_support(128, 128, 8, density=0.1),
+        center_support(256, 256, 8, density=0.1),
+        center_support(256, 256, 8, density=0.05),
     ],
     'column': [
-        column(32, 128, 128, density=0.3),
-        column(64, 256, 256, density=0.3),
-        column(128, 512, 512, density=0.1),
-        column(128, 512, 512, density=0.3),
-        column(128, 512, 512, density=0.5),
+        column(32, 128, 8, density=0.3),
+        column(64, 256, 8, density=0.3),
+        column(128, 512, 8, density=0.1),
+        column(128, 512, 8, density=0.3),
+        column(128, 512, 8, density=0.5),
     ],
     'roof': [
-        roof(64, 64, 64, density=0.2),
-        roof(128, 128, 128, density=0.15),
-        roof(256, 256, 256, density=0.4),
-        roof(256, 256, 256, density=0.2),
-        roof(256, 256, 256, density=0.1),
+        roof(64, 64, 8, density=0.2),
+        roof(128, 128, 8, density=0.15),
+        roof(256, 256, 8, density=0.4),
+        roof(256, 256, 8, density=0.2),
+        roof(256, 256, 8, density=0.1),
     ],
     # bridges
     'causeway_bridge_top': [
-        causeway_bridge(64, 64, 64, density=0.3),
-        causeway_bridge(128, 128, 128, density=0.2),
-        causeway_bridge(256, 256, 256, density=0.1),
-        causeway_bridge(128, 64, 64, density=0.3),
-        causeway_bridge(256, 128, 128, density=0.2),
+        causeway_bridge(64, 64, 8, density=0.3),
+        causeway_bridge(128, 128, 8, density=0.2),
+        causeway_bridge(256, 256, 8, density=0.1),
+        causeway_bridge(128, 64, 8, density=0.3),
+        causeway_bridge(256, 128, 8, density=0.2),
     ],
     'causeway_bridge_middle': [
-        causeway_bridge(64, 64, 64, density=0.12, deck_level=0.5),
-        causeway_bridge(128, 128, 128, density=0.1, deck_level=0.5),
-        causeway_bridge(256, 256, 256, density=0.08, deck_level=0.5),
+        causeway_bridge(64, 64, 8, density=0.12, deck_level=0.5),
+        causeway_bridge(128, 128, 8, density=0.1, deck_level=0.5),
+        causeway_bridge(256, 256, 8, density=0.08, deck_level=0.5),
     ],
     'causeway_bridge_low': [
-        causeway_bridge(64, 64, 64, density=0.12, deck_level=0.3),
-        causeway_bridge(128, 128, 128, density=0.1, deck_level=0.3),
-        causeway_bridge(256, 256, 256, density=0.08, deck_level=0.3),
+        causeway_bridge(64, 64, 8, density=0.12, deck_level=0.3),
+        causeway_bridge(128, 128, 8, density=0.1, deck_level=0.3),
+        causeway_bridge(256, 256, 8, density=0.08, deck_level=0.3),
     ],
     'two_level_bridge': [
-        two_level_bridge(64, 64, 64, density=0.2),
-        two_level_bridge(128, 128, 128, density=0.16),
-        two_level_bridge(256, 256, 256, density=0.12),
+        two_level_bridge(64, 64, 8, density=0.2),
+        two_level_bridge(128, 128, 8, density=0.16),
+        two_level_bridge(256, 256, 8, density=0.12),
     ],
     'free_suspended_bridge': [
-        suspended_bridge(64, 64, 64, density=0.15, anchored=False),
-        suspended_bridge(128, 128, 128, density=0.1, anchored=False),
-        suspended_bridge(256, 256, 256, density=0.075, anchored=False),
-        suspended_bridge(256, 256, 256, density=0.05, anchored=False),
+        suspended_bridge(64, 64, 8, density=0.15, anchored=False),
+        suspended_bridge(128, 128, 8, density=0.1, anchored=False),
+        suspended_bridge(256, 256, 8, density=0.075, anchored=False),
+        suspended_bridge(256, 256, 8, density=0.05, anchored=False),
     ],
     'anchored_suspended_bridge': [
-        suspended_bridge(64, 64, 64, density=0.15, span_position=0.1, anchored=True),
-        suspended_bridge(128, 128, 128, density=0.1, span_position=0.1, anchored=True),
-        suspended_bridge(256, 256, 256, density=0.075, span_position=0.1, anchored=True),
-        suspended_bridge(256, 256, 256, density=0.05, span_position=0.1, anchored=True),
+        suspended_bridge(64, 64, 8, density=0.15, span_position=0.1, anchored=True),
+        suspended_bridge(128, 128, 8, density=0.1, span_position=0.1, anchored=True),
+        suspended_bridge(256, 256, 8, density=0.075, span_position=0.1, anchored=True),
+        suspended_bridge(256, 256, 8, density=0.05, span_position=0.1, anchored=True),
     ],
     'canyon_bridge': [
-        canyon_bridge(64, 64, 64, density=0.16),
-        canyon_bridge(128, 128, 128, density=0.12),
-        canyon_bridge(256, 256, 256, density=0.1),
-        canyon_bridge(256, 256, 256, density=0.05),
+        canyon_bridge(64, 64, 8, density=0.16),
+        canyon_bridge(128, 128, 8, density=0.12),
+        canyon_bridge(256, 256, 8, density=0.1),
+        canyon_bridge(256, 256, 8, density=0.05),
     ],
     'thin_support_bridge': [
-        thin_support_bridge(64, 64, 64, density=0.3),
-        thin_support_bridge(128, 128, 128, density=0.2),
-        thin_support_bridge(256, 256, 256, density=0.15),
-        thin_support_bridge(256, 256, 256, density=0.1),
+        thin_support_bridge(64, 64, 8, density=0.3),
+        thin_support_bridge(128, 128, 8, density=0.2),
+        thin_support_bridge(256, 256, 8, density=0.15),
+        thin_support_bridge(256, 256, 8, density=0.1),
     ],
     'drawbridge': [
-        drawbridge(64, 64, 64, density=0.2),
-        drawbridge(128, 128, 128, density=0.15),
-        drawbridge(256, 256, 256, density=0.1),
+        drawbridge(64, 64, 8, density=0.2),
+        drawbridge(128, 128, 8, density=0.15),
+        drawbridge(256, 256, 8, density=0.1),
     ],
 	"""
     # more complex design problems
@@ -635,23 +657,23 @@ PROBLEMS_BY_CATEGORY = {
     ],
 	"""
     'staggered_points': [
-        staggered_points(64, 64, 64, density=0.3),
-        staggered_points(128, 128, 128, density=0.3),
-        staggered_points(256, 256, 256, density=0.3),
-        staggered_points(256, 256, 256, density=0.5),
-        staggered_points(64, 128, 128, density=0.3),
-        staggered_points(128, 256, 256, density=0.3),
-        staggered_points(32, 128, 128, density=0.3),
-        staggered_points(64, 256, 256, density=0.3),
-        staggered_points(128, 512, 512, density=0.3),
-        staggered_points(128, 512, 512, interval=32, density=0.15),
+        staggered_points(64, 64, 8, density=0.3),
+        staggered_points(128, 128, 8, density=0.3),
+        staggered_points(256, 256, 8, density=0.3),
+        staggered_points(256, 256, 8, density=0.5),
+        staggered_points(64, 128, 8, density=0.3),
+        staggered_points(128, 256, 8, density=0.3),
+        staggered_points(32, 128, 8, density=0.3),
+        staggered_points(64, 256, 8, density=0.3),
+        staggered_points(128, 512, 8, density=0.3),
+        staggered_points(128, 512, 8, interval=32, density=0.15),
     ],
     'multistory_building': [
-        multistory_building(32, 64, 64, density=0.5),
-        multistory_building(64, 128, 128, interval=32, density=0.4),
-        multistory_building(128, 256, 256, interval=64, density=0.3),
-        multistory_building(128, 512, 512, interval=64, density=0.25),
-        multistory_building(128, 512, 512, interval=128, density=0.2),
+        multistory_building(32, 64, 8, density=0.5),
+        multistory_building(64, 128, 8, interval=32, density=0.4),
+        multistory_building(128, 256, 8, interval=64, density=0.3),
+        multistory_building(128, 512, 8, interval=64, density=0.25),
+        multistory_building(128, 512, 8, interval=128, density=0.2),
     ],
 }
 

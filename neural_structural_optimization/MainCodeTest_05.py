@@ -42,7 +42,7 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     return xarray.concat([ds_cnn], dim=dims)
 
 """MBB beam with a larger grid"""
-problem = problems.PROBLEMS_BY_NAME['mbb_beam_192x32x8_0.5']
+problem = problems.PROBLEMS_BY_NAME['mbbbeam_Test_192x32x8_0.5']
 max_iterations = 100
 
 # #%time ds = train_all(problem, max_iterations) #%timeが機能しないため,以下の処理に変更
@@ -145,5 +145,4 @@ plt.suptitle(problem.name, y=1.02)
 
 print("All Processes are Over")
 # -
-
 

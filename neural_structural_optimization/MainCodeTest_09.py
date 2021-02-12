@@ -41,8 +41,8 @@ def train_all(problem, max_iterations, cnn_kwargs=None):
     dims = pd.Index(['cnn-lbfgs'], name='model')
     return xarray.concat([ds_cnn], dim=dims)
 
-"""MBB beam with a larger grid"""
-problem = problems.PROBLEMS_BY_NAME['mbb_beam_32x32x8_0.5']
+
+problem = problems.PROBLEMS_BY_NAME['ground_structure_32x32x8_0.12']
 max_iterations = 100
 
 # #%time ds = train_all(problem, max_iterations) #%timeが機能しないため,以下の処理に変更
@@ -76,42 +76,42 @@ design_yz = ds.design.sel(x=ds.design.x[0])
 design_zx = ds.design.sel(y=ds.design.y[-1])
 
 design_xy0.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy1.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy2.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy3.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy4.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy5.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy6.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_xy7.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='y', size=2, aspect=1, col_wrap=2,
+    col='model', x='x', y='y', size=2, aspect=2.5, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 """
@@ -121,24 +121,24 @@ design_xy8.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
 plt.suptitle(problem.name, y=1.02)
 """
 design_yz.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='y', y='z', size=2, aspect=4, col_wrap=2,
+    col='model', x='y', y='z', size=2, aspect=1, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 design_zx.ffill('step').sel(step=max(ds.design.step)).plot.imshow(
-    col='model', x='x', y='z', size=2, aspect=4, col_wrap=2,
+    col='model', x='x', y='z', size=2, aspect=1, col_wrap=2,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.suptitle(problem.name, y=1.02)
 
 #Steps - Models
-design_xy0.sel(step=[0, 1, 2, 5, 10, 20, 50, 63]).plot.imshow(
-    row='model', col='step', x='x', y='y', size=2, aspect=1,
+design_xy0.sel(step=[0, 1, 2, 5, 10, 20, 50, max(ds.design['step'])]).plot.imshow(
+    row='model', col='step', x='x', y='y', size=2, aspect=0.5,
     yincrease=False, add_colorbar=False, cmap='Greys')
-design_yz.sel(step=[0, 1, 2, 5, 10, 20, 50, 63]).plot.imshow(
-    row='model', col='step', x='y', y='z', size=2, aspect=4,
+design_yz.sel(step=[0, 1, 2, 5, 10, 20, 50, max(ds.design['step'])]).plot.imshow(
+    row='model', col='step', x='y', y='z', size=2, aspect=0.5,
     yincrease=False, add_colorbar=False, cmap='Greys')
-design_zx.sel(step=[0, 1, 2, 5, 10, 20, 50, 63]).plot.imshow(
-    row='model', col='step', x='x', y='z', size=2, aspect=4,
+design_zx.sel(step=[0, 1, 2, 5, 10, 20, 50, max(ds.design['step'])]).plot.imshow(
+    row='model', col='step', x='x', y='z', size=2, aspect=0.5,
     yincrease=False, add_colorbar=False, cmap='Greys')
 plt.subplots_adjust(wspace=0.1, hspace=0.05)
 plt.suptitle(problem.name, y=1.02)
