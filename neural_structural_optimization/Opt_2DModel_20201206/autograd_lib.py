@@ -28,6 +28,7 @@ import numpy as np
 import scipy.ndimage
 import scipy.sparse
 import scipy.sparse.linalg
+
 try:
   import sksparse.cholmod
   HAS_CHOLMOD = True
@@ -147,12 +148,12 @@ def _get_solver(a_entries, a_indices, size, sym_pos):
   # A cache size of one is sufficient to avoid re-computing the factorization in
   # the backwawrds pass.
   a = scipy.sparse.coo_matrix((a_entries, a_indices), shape=(size,)*2).tocsc()
-  if sym_pos and HAS_CHOLMOD:
-    return sksparse.cholmod.cholesky(a).solve_A
-  else:
+  #if sym_pos and HAS_CHOLMOD:
+  #  return sksparse.cholmod.cholesky(a).solve_A
+  #else:
     # could also use scikits.umfpack.splu
     # should be about twice as slow as the cholesky
-    return scipy.sparse.linalg.splu(a).solve
+  return scipy.sparse.linalg.splu(a).solve
 
 
 ## Sparse solver
